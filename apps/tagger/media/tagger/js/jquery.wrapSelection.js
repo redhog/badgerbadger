@@ -43,7 +43,6 @@
 	};
 
 	$.fn.wrapSelection = function(options) {
-		var range = $.fn.range;
 		var selectClass = 'sel_' + new Date().getTime();// Unique Class, created on each highlight
 		var defaults = {
 			fitToWord: true,
@@ -60,6 +59,8 @@
 		var opts = $.extend({}, defaults, options);
 		
 		setWrapRange(this, opts.wrapRange);
+
+		var range = $.fn.range;
 
 		if (range.startContainer && range.endContainer){
 			if(opts.fitToWord) FitToWord();

@@ -1,36 +1,13 @@
 <html>
   <head>
     <title>Tagger</title>
-    <style>
-      .selection {
-        outline: 2px solid red;
-      }
-    </style>
+    <link rel="stylesheet" href="/static/tagger/css/tagger.css" type="text/css" /> 
     <script src="/static/tagger/js/jquery-1.6.4.min.js"></script>
     <script src="/static/tagger/js/jquery.wrapSelection.js"></script>
     <script src="/static/tagger/js/selectorgadget/lib/dom.js"></script>
     <script src="/static/tagger/js/selectorgadget/vendor/diff/diff_match_patch.js"></script>
     <script src="/static/tagger/js/dom2selector.js"></script>
-    <script>
-      $(document).ready(function () {
-        var domToSelector = new DomToSelector();
-        var body = $('body');
-
-	body.bind("mouseup", function(){
-          var range = body.getRangeAt();
-          var srange = domToSelector.serializeRange(range);
-
-          //console.log(JSON.stringify(srange));
-
-          range = domToSelector.unserializeRange(srange);
-          //console.log(range);
-
-          var res = body.wrapSelection({wrapRange:range});
-          res.addClass('selection');
-	});
-
-      });
-    </script>
+    <script src="/static/tagger/js/tagger.js"></script>
   </head>
   <body>
 

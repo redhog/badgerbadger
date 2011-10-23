@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     (r'^tagger/select/(?P<url>.*)', "tagger.views.select"),
     (r'^tagger/data/(?P<url>.*)', "tagger.views.data"),
     (r'^tagger/view/(?P<url>.*)', "tagger.views.view"),
+    (r'^(?P<url>.*)', "tagger.views.other"),
 )

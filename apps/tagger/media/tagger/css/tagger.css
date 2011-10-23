@@ -28,6 +28,7 @@
 .selection_23 { outline-color: #fd7778; }
 
 .tagger .tag_dialog {
+  z-index: 500;
   background: #fafafa;
   border: 3px solid #cccccc;
   -moz-border-radius: 10px;

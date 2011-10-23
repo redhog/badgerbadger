@@ -7,6 +7,7 @@ import contextlib
 import urllib
 import tagger.models
 import json
+import re
 
 def get_document(url):
     docs = tagger.models.Document.objects.filter(url=url)
@@ -96,3 +97,13 @@ def view(request, url):
         document = a + body + "</body>" + b
 
     return django.http.HttpResponse(document, mimetype=info['Content-Type'])
+
+# The very very sneaky way to get absolute path-only URL:s to work...
+def other(request, url):
+    referer = request.META.get('HTTP_REFERER', '')
+    match = re.match(r".*(/tagger/view/.*//[^/]*)/.*", referer)
+    if match:
+        baseurl = match.groups()[0]
+        url = baseurl + "/" + utllib.quote(url)
+        return django.shortcuts.redirect(url)
+    raise django.http.Http404

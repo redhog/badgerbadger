@@ -25,17 +25,18 @@ def get_tag(name):
     tag.save()
     return tag
 
-def tags(request):
+
+def tags_json(request):
     term = request.GET['term']
 
     data = [{"id": tag.id, "label": tag.name, "value": tag.name}
             for tag in
-            tagger.models.Tag.objects.filter(name__icontains = term)]
+            tagger.models.Tag.objects.filter(name__icontains = term)[:10]]
     
-    return django.http.HttpResponse(json.dumps(data), "text/json");
+    return django.http.HttpResponse(json.dumps(data), "text/json")
 
 
-def untag(request):
+def remove_tag(request):
     src = tagger.models.Object.objects.get(id=int(request.GET['id']))
     tag = get_tag(request.GET['tag'])
 
@@ -43,7 +44,7 @@ def untag(request):
         tagging.delete()
     return django.http.HttpResponse("true", "text/json");
 
-def tag(request):
+def add_tag(request):
     src = tagger.models.Object.objects.get(id=int(request.GET['id']))
     tag = get_tag(request.GET['tag'])
 
@@ -107,3 +108,17 @@ def other(request, url):
         url = baseurl + "/" + utllib.quote(url)
         return django.shortcuts.redirect(url)
     raise django.http.Http404
+
+def search(request):
+    results = tagger.models.Object.objects
+
+    for name in request.GET.getlist('tags[]'):
+        results = results.filter(tags__tag__name = name)
+
+    results = results.all()[:10]
+
+    return django.shortcuts.render_to_response('tagger/search.html', {"results": results}, context_instance=django.template.RequestContext(request))
+
+
+def index(request):
+    return django.shortcuts.render_to_response('tagger/index.html', {}, context_instance=django.template.RequestContext(request))

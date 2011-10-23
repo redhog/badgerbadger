@@ -38,11 +38,11 @@
   display: none;
   max-width: 30%;
 }
-.tagger .tag_dialog #tags {
+.tagger .tags {
   line-height: 1.7em;
 }
-.tagger .tag_dialog .tag,
-.tagger .tag_dialog #new_tag {
+.tagger .tag,
+.tagger .new_tag {
   background: #ffffff;
   border: 2px solid #cccccc;
   -moz-border-radius: 3px;
@@ -50,7 +50,7 @@
   padding: 2px;
   font-style: italic;
 }
-.tagger .tag_dialog .tag .remove {
+.tagger .tag .remove {
   position: relative;
   top: -0.5em;
   font-size: 80%;

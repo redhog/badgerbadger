@@ -17,6 +17,9 @@ $(document).ready(function () {
 	  tag: tag.tag
 	},
 	success: function (data) {
+          $(".tag_dialog")[0].selection.tags = jQuery.grep($(".tag_dialog")[0].selection.tags, function(value) {
+            return value != tag;
+          });
 	  removeTag(tag);
 	},
 	dataType: "json"
@@ -25,7 +28,6 @@ $(document).ready(function () {
   }
 
   function wrapSelection(selection) {
-    console.log(JSON.stringify(selection.selector));
     var sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selection.selector)});
     sel.addClass('selection').addClass('selection_' + selection.id);
     sel.bind("click", function () {
@@ -49,6 +51,7 @@ $(document).ready(function () {
 	success: function (data) {
 	  $(".tag_dialog")[0].selection.tags.push(tag);
 	  addTag(tag);
+	  $(".tag_dialog #new_tag")[0].value = '';
 	},
 	dataType: "json"
       });

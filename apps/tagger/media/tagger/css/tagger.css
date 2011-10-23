@@ -1,3 +1,25 @@
 .selection {
   outline: 2px solid red;
 }
+.tag_dialog {
+  background: #dddddd;
+  border: 3px solid #aaaaaa;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  padding: 10px;
+  position: absolute;
+  display: none;
+}
+.tag {
+  background: #ffffff;
+  border: 2px solid #aaaaaa;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  padding: 2px;
+}
+.tag .remove {
+  position: relative;
+  top: -0.5em;
+  font-size: 80%;
+  text-decoration: none;
+}

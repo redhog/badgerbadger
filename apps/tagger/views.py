@@ -8,17 +8,73 @@ import urllib
 import tagger.models
 import json
 
-
-def selections(request, url):
+def get_document(url):
     docs = tagger.models.Document.objects.filter(url=url)
-    data = []
+    if docs:
+        return docs[0]
+    doc = tagger.models.Document(url=url)
+    doc.save()
+    return doc
 
-    if len(docs):
-        for rng in docs[0].ranges.order_by("order"):
-            data.append({"selector": json.loads(rng.selector), "tags":[]})
+def get_tag(name):
+    tags = tagger.models.Tag.objects.filter(name=name)
+    if tags:
+        return tags[0]
+    tag = tagger.models.Tag(name=name)
+    tag.save()
+    return tag
 
-    data = django.template.loader.get_template('tagger/selections.js').render(django.template.RequestContext(request, {"selections": json.dumps(data)})).encode("utf-8")
+def tags(request):
+    term = request.GET['term']
 
+    data = [{"id": tag.id, "label": tag.name, "value": tag.name}
+            for tag in
+            tagger.models.Tag.objects.filter(name__icontains = term)]
+    
+    return django.http.HttpResponse(json.dumps(data), "text/json");
+
+
+def untag(request):
+    src = tagger.models.Object.objects.get(id=int(request.GET['id']))
+    tag = get_tag(request.GET['tag'])
+
+    for tagging in tagger.models.Tagging.objects.filter(src=src, tag=tag):
+        tagging.delete()
+    return django.http.HttpResponse("true", "text/json");
+
+def tag(request):
+    src = tagger.models.Object.objects.get(id=int(request.GET['id']))
+    tag = get_tag(request.GET['tag'])
+
+    tagging = tagger.models.Tagging(src=src, tag=tag)
+    tagging.save()
+    return django.http.HttpResponse("true", "text/json");
+
+
+def select(request, url):
+    doc = get_document(url)
+    order = int(request.GET['order'])
+    selector = request.GET['selector']
+    selectors = doc.ranges.order_by("-order")
+    if selectors:
+        old_order = selectors[0].order
+        print old_order, order
+        assert old_order + 1 == order
+    else:
+        assert order == 0
+
+    rng = tagger.models.Range(document=doc, order=order, selector=selector)
+    rng.save()
+    return django.http.HttpResponse(json.dumps(rng.id), "text/json");
+
+def data(request, url):
+    doc = get_document(url)
+    data = [{"selector":json.loads(rng.selector),
+             "id": rng.id,
+             "tags": [{'tag': tagging.tag.name, 'type': tagging.tag.type and tagging.tag.type.name, 'dst': tagging.dst and tagging.dst.id}
+                      for tagging in rng.tags.all()]}
+            for rng in doc.ranges.order_by("order")]
+    data = django.template.loader.get_template('tagger/data.js').render(django.template.RequestContext(request, {"url": url, "selections": json.dumps(data)})).encode("utf-8")
     return django.http.HttpResponse(data, "text/javascript");
 
 

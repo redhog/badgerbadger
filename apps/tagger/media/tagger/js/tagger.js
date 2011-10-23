@@ -1,4 +1,13 @@
 $(document).ready(function () {
+  $('.tagger .intro_help').css({opacity: 0.0, display: 'block'});
+  $('.tagger .intro_help').animate({opacity: 1.0}, 1000, function() {
+    setTimeout(function () {
+      $('.tagger .intro_help').animate({opacity: 0.0}, 2000, function() {
+	$('.tagger .intro_help').css({display: 'none'});
+      });
+    }, 1000);
+  });
+
   var domToSelector = new DomToSelector();
   var body = $('body');
 

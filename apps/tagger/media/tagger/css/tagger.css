@@ -96,3 +96,25 @@
   height: 10px;
   display: inline-block;
 }
+
+.tagger .intro_help {
+  position: absolute;
+  height: 30%;
+  width: 30%;
+  top: 35%;
+  left: 35%;
+  z-index: 500;
+  background: #fafafa;
+  border: 3px solid #cccccc;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  padding: 10px;
+  position: absolute;
+  display: none;
+
+  font-weight: normal;
+  font-style: italic;
+  font-size: 20pt;
+  font-weight: normal;
+  text-align: center;
+}

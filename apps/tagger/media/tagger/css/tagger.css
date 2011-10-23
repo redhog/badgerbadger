@@ -27,6 +27,22 @@
 .selection_22 { outline-color: #7778fd; }
 .selection_23 { outline-color: #fd7778; }
 
+.tagger {
+  font-family: serif;
+  font-size: 12pt;
+}
+
+.tagger h1 {
+  font-weight: normal;
+  font-style: italic;
+}
+.tagger .subheading {
+  font-size: 11pt;
+  font-weight: normal;
+  font-style: italic;
+  padding-left: 10em;
+}
+
 .tagger .tag_dialog {
   z-index: 500;
   background: #fafafa;
@@ -54,8 +70,10 @@
 .tagger .tags {
   line-height: 1.7em;
 }
+.tagger .url,
 .tagger .tag,
 .tagger .new_tag {
+  white-space: nowrap;
   background: #ffffff;
   border: 2px solid #cccccc;
   -moz-border-radius: 3px;
@@ -63,10 +81,18 @@
   padding: 2px;
   font-style: italic;
 }
+
 .tagger .tag .remove {
   position: relative;
-  top: -0.5em;
-  font-size: 80%;
-  text-decoration: none;
-  color: #555555;
+  top: -9px;
+  right: -9px;
+  background: #fafafa;
+  color: #fafafa;
+  font-size: 1px;
+  border: 3px solid #cccccc;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
 }

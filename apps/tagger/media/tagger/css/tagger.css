@@ -35,6 +35,10 @@
   padding: 10px;
   position: absolute;
   display: none;
+  max-width: 30%;
+}
+.tagger .tag_dialog #tags {
+  line-height: 1.7em;
 }
 .tagger .tag_dialog .tag,
 .tagger .tag_dialog #new_tag {

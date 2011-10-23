@@ -27,15 +27,19 @@ $(document).ready(function () {
     });
   }
 
+  function openDialog(selection) {
+    var sel = $('.selection_' + selection.order);
+    $(".tag_dialog")[0].selection = selection;
+    $(".tag_dialog").css({display: "block", top: sel.offset().top + sel.height(), left: sel.offset().left});
+    $(".tag_dialog #tags" ).html("");
+    $.each(selection.tags, function (index, tag) { addTag(tag); });
+    $(".tag_dialog #new_tag" ).focus();
+  }
+
   function wrapSelection(selection) {
     var sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selection.selector)});
     sel.addClass('selection').addClass('selection_' + selection.order);
-    sel.bind("click", function () {
-      $(".tag_dialog")[0].selection = selection;
-      $(".tag_dialog").css({display: "block", top: sel.offset().top + sel.height(), left: sel.offset().left});
-      $(".tag_dialog #tags" ).html("");
-      $.each(selection.tags, function (index, tag) { addTag(tag); });
-    });
+    sel.bind("click", function () { openDialog(selection); });
   }
 
   $(".tag_dialog #new_tag").autocomplete({source: "/tagger/tags"});
@@ -79,6 +83,7 @@ $(document).ready(function () {
         var selection = {selector:selector, tags:[], id:data, order:tagger.selections.length};
         tagger.selections.push(selection);
         wrapSelection(selection);
+	openDialog(selection);
       },
       dataType: "json"
     });

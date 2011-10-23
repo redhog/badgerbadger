@@ -29,7 +29,7 @@ $(document).ready(function () {
 
   function wrapSelection(selection) {
     var sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selection.selector)});
-    sel.addClass('selection').addClass('selection_' + selection.id);
+    sel.addClass('selection').addClass('selection_' + selection.order);
     sel.bind("click", function () {
       $(".tag_dialog")[0].selection = selection;
       $(".tag_dialog").css({display: "block", top: sel.offset().top + sel.height(), left: sel.offset().left});
@@ -64,6 +64,9 @@ $(document).ready(function () {
 
   body.bind("mouseup", function(){
     var range = body.getRangeAt();
+
+    if (range.startContainer == range.endContainer && range.startOffset == range.endOffset) return;
+
     var selector = domToSelector.serializeRange(range);
 
     $.ajax({

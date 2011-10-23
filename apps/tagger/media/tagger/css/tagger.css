@@ -1,25 +1,54 @@
 .selection {
-  outline: 2px solid red;
+  outline: 2px solid;
 }
-.tag_dialog {
-  background: #dddddd;
-  border: 3px solid #aaaaaa;
+
+.selection_0 { outline-color: #ff7777; }
+.selection_1 { outline-color: #77ff77; }
+.selection_2 { outline-color: #7777ff; }
+.selection_3 { outline-color: #bbbb77; }
+.selection_4 { outline-color: #77bbbb; }
+.selection_5 { outline-color: #ba77bb; }
+.selection_6 { outline-color: #99dd77; }
+.selection_7 { outline-color: #7799dc; }
+.selection_8 { outline-color: #dc7799; }
+.selection_9 { outline-color: #88ee77; }
+.selection_10 { outline-color: #7788ee; }
+.selection_11 { outline-color: #ed7788; }
+.selection_12 { outline-color: #7ff677; }
+.selection_13 { outline-color: #777ff6; }
+.selection_14 { outline-color: #f6777f; }
+.selection_15 { outline-color: #7bfa77; }
+.selection_16 { outline-color: #777bfa; }
+.selection_17 { outline-color: #fa777b; }
+.selection_18 { outline-color: #79fc77; }
+.selection_19 { outline-color: #7779fc; }
+.selection_20 { outline-color: #fc7779; }
+.selection_21 { outline-color: #78fd77; }
+.selection_22 { outline-color: #7778fd; }
+.selection_23 { outline-color: #fd7778; }
+
+.tagger .tag_dialog {
+  background: #fafafa;
+  border: 3px solid #cccccc;
   -moz-border-radius: 10px;
   border-radius: 10px;
   padding: 10px;
   position: absolute;
   display: none;
 }
-.tag {
+.tagger .tag_dialog .tag,
+.tagger .tag_dialog #new_tag {
   background: #ffffff;
-  border: 2px solid #aaaaaa;
+  border: 2px solid #cccccc;
   -moz-border-radius: 3px;
   border-radius: 3px;
   padding: 2px;
+  font-style: italic;
 }
-.tag .remove {
+.tagger .tag_dialog .tag .remove {
   position: relative;
   top: -0.5em;
   font-size: 80%;
   text-decoration: none;
+  color: #555555;
 }

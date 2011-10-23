@@ -71,6 +71,7 @@ def data(request, url):
     doc = get_document(url)
     data = [{"selector":json.loads(rng.selector),
              "id": rng.id,
+             "order": rng.order,
              "tags": [{'tag': tagging.tag.name, 'type': tagging.tag.type and tagging.tag.type.name, 'dst': tagging.dst and tagging.dst.id}
                       for tagging in rng.tags.all()]}
             for rng in doc.ranges.order_by("order")]

@@ -74,6 +74,7 @@
 			return $('.' + opts.selectClass);
 		}
 		else{
+		        console.warn("wrapSelection: no start/end container");
 			return $([]);// return empty node
 		};
 
@@ -228,7 +229,13 @@
 				for (var j = 0, jLength = myNodes[i].length; j < jLength; j++) {
 					//this works assuming there aren't any block-level elements contained in the lower element; so it should work for P, but not for UL
 					if (myParentName == 'DIV') {
-						if (myNodes[i][j].nodeType != 1) continue;
+						if (myNodes[i][j].nodeType != 1) {
+							var mySpan = makeSpanElement();
+							myNodes[i][j].parentNode.replaceChild(mySpan, myNodes[i][j]);
+							mySpan.appendChild(myNodes[i][j]);
+							Spans.push(mySpan);
+							continue;
+					        }
 						var myChildNodes = myNodes[i][j].childNodes;
 						var mySpan = makeSpanElement();
 						while (myChildNodes.length > 0) mySpan.appendChild(myChildNodes[0]);

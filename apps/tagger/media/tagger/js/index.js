@@ -5,7 +5,7 @@ $(document).ready(function () {
     $(".search .tags .tag").each(function () { tags.push(this.tag); });
 
     $.ajax({
-      url: "/tagger/search",
+      url: "/badgerbadger/tagger/search",
       data: {
         tags: tags
       },
@@ -33,7 +33,7 @@ $(document).ready(function () {
     updateSearch();
   }
 
-  $(".search .new_tag").autocomplete({source: "/tagger/tags/json"});
+  $(".search .new_tag").autocomplete({source: "/badgerbadger/tagger/tags/json"});
   $(".search .new_tag").keypress(function (event) {
     if (event.keyCode == 13) { // Enter...
       addTag($(".search .new_tag")[0].value);
@@ -43,7 +43,7 @@ $(document).ready(function () {
 
   $(".url").keypress(function (event) {
     if (event.keyCode == 13) { // Enter...
-      document.location = "/tagger/view/" + escape($(".url")[0].value);
+      document.location = "/badgerbadger/tagger/view/" + escape($(".url")[0].value);
     }
   });
 });

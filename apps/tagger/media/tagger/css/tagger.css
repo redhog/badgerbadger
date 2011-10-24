@@ -1,5 +1,12 @@
 .selection {
   outline: 2px solid;
+  float: none;
+  color: inherit;
+  background: inherit;
+  border: inherit;
+  font: inherit;
+  margin: initial;
+  padding: initial;
 }
 
 .selection_0 { outline-color: #ff7777; }

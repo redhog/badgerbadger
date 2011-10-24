@@ -115,21 +115,6 @@ def view(request, url):
 
     return django.http.HttpResponse(document, mimetype=info['Content-Type'])
 
-# The very very sneaky way to get absolute path-only URL:s to work...
-def other(request, url):
-    try:
-        referer = request.META.get('HTTP_REFERER', '')
-        match = re.match(r".*(/tagger/view/.*//[^/]*)/.*", referer)
-        if match:
-            baseurl = match.groups()[0]
-            url = baseurl + "/" + urllib.quote(url)
-            return django.shortcuts.redirect(url)
-    except:
-        import traceback
-        traceback.print_exc()
-
-    raise django.http.Http404
-
 def search(request):
     results = tagger.models.Object.objects
 
@@ -143,3 +128,20 @@ def search(request):
 
 def index(request):
     return django.shortcuts.render_to_response('tagger/index.html', {}, context_instance=django.template.RequestContext(request))
+
+
+# The very very sneaky way to get absolute path-only URL:s to work...
+def other(request, url):
+    referer = None
+    try:
+        referer = request.META.get('HTTP_REFERER', '')
+        match = re.match(r".*(/badgerbadger/tagger/view/.*//[^/]*)/.*", referer)
+        if match:
+            baseurl = match.groups()[0]
+            url = baseurl + "/" + urllib.quote(url)
+            return django.shortcuts.redirect(url)
+    except:
+        import traceback
+        traceback.print_exc()
+
+    raise django.http.Http404("Unable to find %s from %s" % (url, referer))

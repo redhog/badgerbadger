@@ -1,13 +1,13 @@
 <html>
   <head>
     <title>Tagger search results</title>
-    <link rel="stylesheet" href="/static/tagger/css/tagger.css" type="text/css" /> 
+    <link rel="stylesheet" href="/badgerbadger/static/tagger/css/tagger.css" type="text/css" /> 
   </head>
   <body class="tagger">
     <ul>
       {% for result in results %}
 	<li>
-	  <a href="/tagger/view/{{result.subclassobject.document.url|urlencode}}">{{result.subclassobject.document.url}}</a>
+	  <a href="/badgerbadger/tagger/view/{{result.subclassobject.document.url|urlencode}}">{{result.subclassobject.document.url}}</a>
 	  <div class="tags">
             {% for tagging in result.tags.all %}
               <span class="tag">

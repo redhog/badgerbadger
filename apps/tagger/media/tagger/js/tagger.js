@@ -22,7 +22,7 @@ $(document).ready(function () {
     $(".tag_dialog .tags .tag:last-child")[0].tag = tag;
     $(".tag_dialog .tags .tag:last-child .remove").bind("click", function () {
       $.ajax({
-	url: "/tagger/tag/remove",
+	url: "/badgerbadger/tagger/tag/remove",
 	data: {
 	  id: $(".tag_dialog")[0].selection.id,
 	  tag: tag.tag
@@ -53,12 +53,12 @@ $(document).ready(function () {
     sel.bind("click", function () { openDialog(selection); });
   }
 
-  $(".tag_dialog .new_tag").autocomplete({source: "/tagger/tags/json"});
+  $(".tag_dialog .new_tag").autocomplete({source: "/badgerbadger/tagger/tags/json"});
   $(".tag_dialog .new_tag").keypress(function (event) {
     if (event.keyCode == 13) { // Enter...
       var tag = {'tag': $(".tag_dialog .new_tag")[0].value, 'type': null, 'dst': null};
       $.ajax({
-        url: "/tagger/tag/add",
+        url: "/badgerbadger/tagger/tag/add",
 	data: {
   	  id: $(".tag_dialog")[0].selection.id,
 	  tag: tag.tag
@@ -77,6 +77,8 @@ $(document).ready(function () {
     wrapSelection(selection);
   });
 
+  $('.tag_dialog .exit').bind("click", function () { $('.tag_dialog').hide(); });
+
   body.bind("mouseup", function(){
     var range;
     try {
@@ -89,7 +91,7 @@ $(document).ready(function () {
     var selector = domToSelector.serializeRange(range);
 
     $.ajax({
-      url: "/tagger/select/" + tagger.url,
+      url: "/badgerbadger/tagger/select/" + tagger.url,
       data: {
         order: tagger.selections.length,
         selector: JSON.stringify(selector)

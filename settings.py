@@ -135,7 +135,7 @@ INSTALLED_APPS.extend(
     LOCAL_APPS
     )
 
-STATIC_URL = "/static/"
+STATIC_URL = "/badgerbadger/static/"
 
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "media"),

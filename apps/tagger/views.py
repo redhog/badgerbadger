@@ -17,6 +17,11 @@ def get_document(url):
     doc.save()
     return doc
 
+def get_document_mime_type(url):
+    for doc in tagger.models.Document.objects.filter(url=url):
+        return doc.mime_type
+    return None
+
 def get_tag(name):
     tags = tagger.models.Tag.objects.filter(name=name)
     if tags:
@@ -83,19 +88,30 @@ def data(request, url):
 
 #@django.contrib.auth.decorators.login_required
 def view(request, url):
+    mime_type = get_document_mime_type(url)
+    if mime_type and mime_type not in ("text/html", "text/xhtml"):
+        django.shortcuts.redirect(url)
+
     with contextlib.closing(urllib.urlopen(url)) as f:
         info = f.info()
         document = f.read()
 
-    if info.gettype() in ("text/html", "text/xhtml"):
-        header = django.template.loader.get_template('tagger/header.html').render(django.template.RequestContext(request, {"url": url})).encode("utf-8")
-        body = django.template.loader.get_template('tagger/body.html').render(django.template.RequestContext(request, {})).encode("utf-8")
+    if not mime_type:
+        doc = get_document(url)
+        doc.mime_type = mime_type = info.gettype()
+        doc.save()
 
-        a, b = document.split("</head>")
-        document = a + header + "</head>" + b
+    if mime_type and mime_type not in ("text/html", "text/xhtml"):
+        django.shortcuts.redirect(url)
 
-        a, b = document.split("</body>")
-        document = a + body + "</body>" + b
+    header = django.template.loader.get_template('tagger/header.html').render(django.template.RequestContext(request, {"url": url})).encode("utf-8")
+    body = django.template.loader.get_template('tagger/body.html').render(django.template.RequestContext(request, {})).encode("utf-8")
+
+    a, b = document.split("</head>")
+    document = a + header + "</head>" + b
+
+    a, b = document.split("</body>")
+    document = a + body + "</body>" + b
 
     return django.http.HttpResponse(document, mimetype=info['Content-Type'])
 

@@ -1,5 +1,14 @@
 <link rel="stylesheet" href="/static/tagger/css/tagger.css" type="text/css" /> 
 <link rel="stylesheet" href="/static/tagger/css/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" />
+
+<script>
+  /* Save site's own jQuery (or whatever has set $) */
+  tagger_tmp_site_dollar = tagger_tmp_site_jquery = undefined;
+  if (typeof($) != 'undefined') tagger_tmp_site_dollar = $;
+  if (typeof(jQuery) != 'undefined') tagger_tmp_site_jquery = jQuery;
+  $ = jQuery = undefined;
+</script>
+
 <script src="/static/tagger/js/jquery-1.6.4.min.js"></script>
 <script src="/static/tagger/js/jquery-ui-1.8.16.custom.min.js"></script>
 <script src="/static/tagger/js/jquery.wrapSelection.js"></script>
@@ -8,3 +17,8 @@
 <script src="/static/tagger/js/dom2selector.js"></script>
 <script src="/tagger/data/{{url}}"></script>
 <script src="/static/tagger/js/tagger.js"></script>
+
+<script>
+  $ = tagger_tmp_site_dollar;
+  jQuery = tagger_tmp_site_jquery;
+</script>

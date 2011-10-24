@@ -1,7 +1,9 @@
 // Copyright (c) 2008, 2009 Andrew Cantino
 // Copyright (c) 2008, 2009 Kyle Maxwell
 
-function DomPredictionHelper() {};
+(function ($) {
+
+DomPredictionHelper = function () {};
 DomPredictionHelper.prototype = new Object();
 
 DomPredictionHelper.prototype.recursiveNodes = function(e){
@@ -52,7 +54,7 @@ DomPredictionHelper.prototype.pathOf = function(elem){
       if(escaped && escaped.length > 0) path += '#' + escaped;
     
       if(e.className) {
-        jQuery.each(e.className.split(/ /), function() {
+        $.each(e.className.split(/ /), function() {
           var escaped = self.escapeCssNames(this);
           if (this && escaped.length > 0) {
             path += '.' + escaped;
@@ -80,10 +82,10 @@ DomPredictionHelper.prototype.commonCss = function(array) {
   var encoded_css_array = this.encodeCssForDiff(array, existing_tokens);
   
   var collective_common = encoded_css_array.pop();
-  jQuery.each(encoded_css_array, function(e) {
+  $.each(encoded_css_array, function(e) {
     var diff = dmp.diff_main(collective_common, this);
     collective_common = '';
-    jQuery.each(diff, function() {
+    $.each(diff, function() {
       if (this[0] == 0) collective_common += this[1];
     });
   });
@@ -123,7 +125,7 @@ DomPredictionHelper.prototype.tokenizeCss = function(css_string) {
 DomPredictionHelper.prototype.decodeCss = function(string, existing_tokens) {
   var inverted = this.invertObject(existing_tokens);
   var out = '';
-  jQuery.each(string.split(''), function() {
+  $.each(string.split(''), function() {
     out += inverted[this];
   });
   return this.cleanCss(out);
@@ -134,9 +136,9 @@ DomPredictionHelper.prototype.encodeCssForDiff = function(strings, existing_toke
   var codepoint = 50;
   var self = this;
   var strings_out = [];
-  jQuery.each(strings, function() {
+  $.each(strings, function() {
     var out = new String();
-    jQuery.each(self.tokenizeCss(this), function() {
+    $.each(self.tokenizeCss(this), function() {
       if (!existing_tokens[this]) {
         existing_tokens[this] = String.fromCharCode(codepoint++);
       }
@@ -195,7 +197,7 @@ DomPredictionHelper.prototype.cleanCss = function(css) {
 DomPredictionHelper.prototype.getPathsFor = function(arr) {
   var self = this;
   var out = [];
-  jQuery.each(arr, function() {
+  $.each(arr, function() {
     if (this && this.nodeName) {
       out.push(self.pathOf(this));
     }
@@ -218,7 +220,7 @@ DomPredictionHelper.prototype.predictCss = function(s, r) {
   
   // Okay, then make a union and possibly try to reduce subsets.
   var union = '';
-  jQuery.each(s, function() {
+  $.each(s, function() {
     union = self.pathOf(this) + ", " + union;
   });
   union = self.cleanCss(union);
@@ -229,9 +231,9 @@ DomPredictionHelper.prototype.predictCss = function(s, r) {
 DomPredictionHelper.prototype.fragmentSelector = function(selector) {
   var self = this;
   var out = [];
-  jQuery.each(selector.split(/\,/), function() {
+  $.each(selector.split(/\,/), function() {
     var out2 = [];
-    jQuery.each(self.cleanCss(this).split(/\s+/), function() {
+    $.each(self.cleanCss(this).split(/\s+/), function() {
       out2.push(self.tokenizeCss(this));
     });
     out.push(out2);
@@ -242,7 +244,7 @@ DomPredictionHelper.prototype.fragmentSelector = function(selector) {
 // Everything in the first selector must be present in the second.
 DomPredictionHelper.prototype.selectorBlockMatchesSelectorBlock = function(selector_block1, selector_block2) {
   for (var j = 0; j < selector_block1.length; j++) {
-    if (jQuery.inArray(selector_block1[j], selector_block2) == -1) {
+    if ($.inArray(selector_block1[j], selector_block2) == -1) {
       return false;
     }
   }
@@ -260,14 +262,14 @@ DomPredictionHelper.prototype.selectorGets = function(type, list, the_selector) 
   var selectors = self.fragmentSelector(the_selector);
   
   var cleaned_list = [];
-  jQuery.each(list, function() {
+  $.each(list, function() {
     cleaned_list.push(self.fragmentSelector(this)[0]);
   });
     
-  jQuery.each(selectors, function() {
+  $.each(selectors, function() {
     if (!result) return;
     var selector = this;
-    jQuery.each(cleaned_list, function(pos) {
+    $.each(cleaned_list, function(pos) {
       if (!result || this == '') return;
       if (self._selectorGets(this, selector)) {
         if (type == 'none') result = false;
@@ -306,7 +308,7 @@ DomPredictionHelper.prototype._selectorGets = function(candidate_as_blocks, sele
 
 DomPredictionHelper.prototype.invertObject = function(object) {
   var new_object = {};
-  jQuery.each(object, function(key, value) {
+  $.each(object, function(key, value) {
     new_object[value] = key;
   });
   return new_object;
@@ -340,7 +342,7 @@ DomPredictionHelper.prototype.cssToXPathBlockHelper = function(css_block) {
   
   if (first == ',') return " | ";
 
-  if (jQuery.inArray(first, [':', '#', '.']) != -1) {
+  if ($.inArray(first, [':', '#', '.']) != -1) {
     out += '*';
   }
   
@@ -375,3 +377,4 @@ DomPredictionHelper.prototype.cssToXPathBlockHelper = function(css_block) {
   return out;
 };
 
+})($);

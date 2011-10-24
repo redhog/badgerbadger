@@ -90,7 +90,7 @@ def data(request, url):
 def view(request, url):
     mime_type = get_document_mime_type(url)
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
-        django.shortcuts.redirect(url)
+        return django.shortcuts.redirect(url)
 
     with contextlib.closing(urllib.urlopen(url)) as f:
         info = f.info()
@@ -102,7 +102,7 @@ def view(request, url):
         doc.save()
 
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
-        django.shortcuts.redirect(url)
+        return django.shortcuts.redirect(url)
 
     header = django.template.loader.get_template('tagger/header.html').render(django.template.RequestContext(request, {"url": url})).encode("utf-8")
     body = django.template.loader.get_template('tagger/body.html').render(django.template.RequestContext(request, {})).encode("utf-8")
@@ -117,12 +117,17 @@ def view(request, url):
 
 # The very very sneaky way to get absolute path-only URL:s to work...
 def other(request, url):
-    referer = request.META.get('HTTP_REFERER', '')
-    match = re.match(r".*(/tagger/view/.*//[^/]*)/.*", referer)
-    if match:
-        baseurl = match.groups()[0]
-        url = baseurl + "/" + utllib.quote(url)
-        return django.shortcuts.redirect(url)
+    try:
+        referer = request.META.get('HTTP_REFERER', '')
+        match = re.match(r".*(/tagger/view/.*//[^/]*)/.*", referer)
+        if match:
+            baseurl = match.groups()[0]
+            url = baseurl + "/" + urllib.quote(url)
+            return django.shortcuts.redirect(url)
+    except:
+        import traceback
+        traceback.print_exc()
+
     raise django.http.Http404
 
 def search(request):

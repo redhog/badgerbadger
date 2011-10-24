@@ -1,3 +1,5 @@
+(function ($) {
+
 $(document).ready(function () {
   $('.tagger .intro_help').css({opacity: 0.0, display: 'block'});
   $('.tagger .intro_help').animate({opacity: 1.0}, 1000, function() {
@@ -26,7 +28,7 @@ $(document).ready(function () {
 	  tag: tag.tag
 	},
 	success: function (data) {
-          $(".tag_dialog")[0].selection.tags = jQuery.grep($(".tag_dialog")[0].selection.tags, function(value) {
+          $(".tag_dialog")[0].selection.tags = $.grep($(".tag_dialog")[0].selection.tags, function(value) {
             return value != tag;
           });
 	  removeTag(tag);
@@ -76,8 +78,12 @@ $(document).ready(function () {
   });
 
   body.bind("mouseup", function(){
-    var range = body.getRangeAt();
-
+    var range;
+    try {
+      range = body.getRangeAt();
+    } catch(err) {
+      return;
+    }
     if (range.startContainer == range.endContainer && range.startOffset == range.endOffset) return;
 
     var selector = domToSelector.serializeRange(range);
@@ -99,3 +105,5 @@ $(document).ready(function () {
 
   });
 });
+
+})($);

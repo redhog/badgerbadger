@@ -1,9 +1,11 @@
-var Range = function() {};
+(function ($) {
+
+Range = function() {};
 Range.prototype = $.fn.range;
 
-function DomToSelector() {
+DomToSelector = function () {
   this.prediction_helper = new DomPredictionHelper();
-  this.restricted_elements = jQuery.map(['html', 'body', 'head', 'base'], function(selector) { return jQuery(selector).get(0); });
+  this.restricted_elements = $.map(['html', 'body', 'head', 'base'], function(selector) { return $(selector).get(0); });
 };
 DomToSelector.prototype = new Object();
 DomToSelector.prototype.nodeListIndexOf = function(nodeList, el) {
@@ -95,3 +97,5 @@ DomToSelector.prototype.unserializeRange = function (srange) {
   range.collapsed = false;
   return range;
 }
+
+})($);

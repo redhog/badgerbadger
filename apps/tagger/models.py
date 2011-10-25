@@ -26,6 +26,7 @@ class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMix
     src = django.db.models.ForeignKey(Object, related_name="tags", null=False, blank=True)
     tag = django.db.models.ForeignKey(Tag, related_name="documents", null=False, blank=True)
     dst = django.db.models.ForeignKey(Object, related_name="links", null=True, blank=True)
+    time = django.db.models.DateField(auto_now=True)
 
     def __unicode__(self):
         return "%s of %s" % (self.tag, self.src)

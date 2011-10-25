@@ -87,6 +87,8 @@
   border-radius: 3px;
   padding: 2px;
   font-style: italic;
+  font-family: serif;
+  font-size: 12pt;
 }
 
 .tagger .tag .remove {

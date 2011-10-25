@@ -88,13 +88,19 @@ def data(request, url):
 
 #@django.contrib.auth.decorators.login_required
 def view(request, url):
+    if not url.startswith("http://"):
+        return django.shortcuts.redirect("/badgerbadger/tagger/view/http://" + url)
+
     mime_type = get_document_mime_type(url)
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
         return django.shortcuts.redirect(url)
 
-    with contextlib.closing(urllib.urlopen(url)) as f:
-        info = f.info()
-        document = f.read()
+    try:
+        with contextlib.closing(urllib.urlopen(url)) as f:
+            info = f.info()
+            document = f.read()
+    except IOError, e:
+        raise django.http.Http404("Unable to load the page at '%s'" % (url,))
 
     if not mime_type:
         doc = get_document(url)
@@ -102,6 +108,10 @@ def view(request, url):
         doc.save()
 
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
+        return django.shortcuts.redirect(url)
+
+    # Ok, so not much we can do here... give up and give original page...
+    if '</head>' not in document or '</body>' not in document:
         return django.shortcuts.redirect(url)
 
     header = django.template.loader.get_template('tagger/header.html').render(django.template.RequestContext(request, {"url": url})).encode("utf-8")
@@ -121,7 +131,7 @@ def search(request):
     for name in request.GET.getlist('tags[]'):
         results = results.filter(tags__tag__name = name)
 
-    results = results.all()[:10]
+    results = results.all().order_by("tags__time")[:10]
 
     return django.shortcuts.render_to_response('tagger/search.html', {"results": results}, context_instance=django.template.RequestContext(request))
 
@@ -131,11 +141,12 @@ def index(request):
 
 
 # The very very sneaky way to get absolute path-only URL:s to work...
-def other(request, url):
+def other(request):
+    url = request.get_full_path()
     referer = None
     try:
         referer = request.META.get('HTTP_REFERER', '')
-        match = re.match(r".*(/badgerbadger/tagger/view/.*//[^/]*)/.*", referer)
+        match = re.match(r".*(/badgerbadger/tagger/view/.*//[^/]*)(/.*)?", referer)
         if match:
             baseurl = match.groups()[0]
             url = baseurl + "/" + urllib.quote(url)
@@ -144,4 +155,5 @@ def other(request, url):
         import traceback
         traceback.print_exc()
 
-    raise django.http.Http404("Unable to find %s from %s" % (url, referer))
+    print "Unable to load the page at '%s' from '%s'" % (url, referer)
+    raise django.http.Http404("Unable to load the page at '%s' from '%s'" % (url, referer))

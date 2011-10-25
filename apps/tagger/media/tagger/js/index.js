@@ -46,4 +46,6 @@ $(document).ready(function () {
       document.location = "/badgerbadger/tagger/view/" + escape($(".url")[0].value);
     }
   });
+
+  updateSearch();
 });

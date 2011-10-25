@@ -6,6 +6,17 @@
     <script src="/badgerbadger/static/tagger/js/jquery-1.6.4.min.js"></script>
     <script src="/badgerbadger/static/tagger/js/jquery-ui-1.8.16.custom.min.js"></script>
     <script src="/badgerbadger/static/tagger/js/index.js"></script>
+    <script type="text/javascript">
+    /* <![CDATA[ */
+	(function() {
+	    var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+	    s.type = 'text/javascript';
+	    s.async = true;
+	    s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+	    t.parentNode.insertBefore(s, t);
+	})();
+    /* ]]> */
+    </script>
   </head>
   <body class="tagger">
     <div class="body">
@@ -23,7 +34,14 @@
 
       <div class="results"></div>
     </div>
-    <div class="footer"><a href="https://github.com/redhog/badgerbadger">Source</a> - <a href="http://www.gnu.org/copyleft/gpl.html">GPL</a> - <a href="http://redhog.org">RedHog</a> - <a href="http://www.badgerbadgerbadger.com/">Badger Badger</a></div> 
+    <div class="footer">
+     <a href="https://github.com/redhog/badgerbadger">Source</a>
+     - <a href="http://www.gnu.org/copyleft/gpl.html">GPL</a>
+     - <a href="http://redhog.org">RedHog</a>
+     - <a href="http://www.badgerbadgerbadger.com/">Badger Badger</a>
+     - <a class="FlattrButton" style="display:none;" rev="flattr;button:compact;" href="http://badgerbadger.redhog.org"></a>
+     <noscript><a href="http://flattr.com/thing/422445/Badger-Badger-website-tagging-software" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a></noscript>
+    </div> 
   </body>
 </html>
 

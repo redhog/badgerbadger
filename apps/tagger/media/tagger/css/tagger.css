@@ -80,15 +80,29 @@
 .tagger .url,
 .tagger .tag,
 .tagger .new_tag {
-  white-space: nowrap;
-  background: #ffffff;
   border: 2px solid #cccccc;
   -moz-border-radius: 3px;
   border-radius: 3px;
   padding: 2px;
+}
+.tagger .url,
+.tagger .tag,
+.tagger .new_tag,
+.tagger .url a,
+.tagger .tag a,
+.tagger .new_tag a {
+  white-space: nowrap;
+  background: #ffffff;
+  color: #000000;
   font-style: italic;
   font-family: serif;
   font-size: 12pt;
+  text-decoration: none;
+}
+.tagger .url a:hover,
+.tagger .tag a:hover,
+.tagger .new_tag a:hover {
+  text-decoration: underline;
 }
 
 .tagger .tag .remove {

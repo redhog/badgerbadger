@@ -1,4 +1,16 @@
 $(document).ready(function () {
+  function parseQueryString() {
+    var res = {};
+    $.each(location.search && location.search.substr(1).replace(/\+/gi," ").split("&"), function (i, s) {
+      s = s.split("=");
+      if (res[s[0]] === undefined) {
+	res[s[0]] = [];
+      }
+      res[s[0]].push(s[1]);
+    });
+    return res;
+  } 
+
 
   function updateSearch() {
     var tags = [];
@@ -46,6 +58,11 @@ $(document).ready(function () {
       document.location = "/badgerbadger/tagger/view/" + escape($(".url")[0].value);
     }
   });
+
+  var tags = parseQueryString().tag;
+  if (tags !== undefined) {
+    $.each(tags, function (i, tag) { addTag(unescape(tag)); });
+  }
 
   updateSearch();
 });

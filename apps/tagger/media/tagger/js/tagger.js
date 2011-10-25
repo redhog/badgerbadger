@@ -25,7 +25,7 @@ $(document).ready(function () {
   }
 
   function addTag(tag) {
-   $(".tag_dialog .tags").append("<span class='tag tag_" + escape(tag.tag) + "'><a href='/?tag=" + escape(tag.tag) + "'>" + tag.tag + "</a><a href='javascript: 0;' class='remove'>X</a></span> ");
+   $(".tag_dialog .tags").append("<span class='tag tag_" + escape(tag.tag) + "'><a href='/?tag=" + escape(tag.tag) + "'>" + tag.tag + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
     $(".tag_dialog .tags .tag:last-child")[0].tag = tag;
     $(".tag_dialog .tags .tag:last-child .remove").bind("click", function () {
       $.ajax({

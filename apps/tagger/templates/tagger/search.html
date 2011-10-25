@@ -7,7 +7,7 @@
     <ul>
       {% for result in results %}
 	<li>
-	  <a href="/badgerbadger/tagger/view/{{result.subclassobject.document.url|urlencode}}">{{result.subclassobject.document.url}}</a>
+	  <a href="/badgerbadger/tagger/view/{{result.subclassobject.document.url|urlencode}}#selection_{{result.subclassobject.order}}">{{result.subclassobject.document.url}}</a>
 	  <div class="tags">
             {% for tagging in result.tags.all %}
               <span class="tag">

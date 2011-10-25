@@ -6,6 +6,13 @@ $(document).ready(function () {
     setTimeout(function () {
       $('.tagger .intro_help').animate({opacity: 0.0}, 2000, function() {
 	$('.tagger .intro_help').css({display: 'none'});
+
+	if (document.location.hash.indexOf("selection_") != -1) {
+ 	  var order = parseInt(document.location.hash.split("selection_")[1]);
+	  $.scrollTo(".selection_" + order, 1000);
+	  openDialog(tagger.selections[order]);
+	}
+
       });
     }, 1000);
   });

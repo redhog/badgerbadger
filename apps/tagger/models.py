@@ -43,7 +43,6 @@ class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMix
 
 class Document(Object):
     url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
-    mime_type = django.db.models.CharField(max_length=1024, blank=True)
 
     def __unicode__(self):
         return self.url

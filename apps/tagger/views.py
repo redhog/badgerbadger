@@ -68,6 +68,7 @@ def select(request, url):
     doc = get_document(url)
     order = int(request.GET['order'])
     selector = request.GET['selector']
+    excerpt = request.GET['excerpt']
     selectors = doc.ranges.order_by("-order")
     if selectors:
         old_order = selectors[0].order
@@ -76,7 +77,7 @@ def select(request, url):
     else:
         assert order == 0
 
-    rng = tagger.models.Range(document=doc, order=order, selector=selector)
+    rng = tagger.models.Range(document=doc, order=order, selector=selector, excerpt=excerpt)
     rng.save()
     return django.http.HttpResponse(json.dumps(rng.id), "text/json");
 
@@ -131,7 +132,7 @@ def view(request, url):
     return django.http.HttpResponse(document, mimetype=info['Content-Type'])
 
 def search(request):
-    results = tagger.models.Object.objects
+    results = tagger.models.Range.objects
 
     for name in request.GET.getlist('tags[]'):
         results = results.filter(tags__tag__name = name)
@@ -143,6 +144,16 @@ def search(request):
 
 def index(request):
     return django.shortcuts.render_to_response('tagger/index.html', {}, context_instance=django.template.RequestContext(request))
+
+
+def go(request, id):
+    for obj in tagger.models.Object.objects.filter(id=int(id)):
+        obj = obj.subclassobject
+        if hasattr(obj, "range"):
+            url = "/badgerbadger/tagger/view/%s#selection_%s" % (urllib.quote(obj.document.url), obj.order)
+            return django.shortcuts.redirect(url)
+
+    raise django.http.Http404("Unable to find object with id %s" % (id,))
 
 
 # The very very sneaky way to get absolute path-only URL:s to work...

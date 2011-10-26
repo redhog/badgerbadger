@@ -51,6 +51,7 @@ class Range(Object):
     document = django.db.models.ForeignKey(Document, related_name="ranges", null=False)
     order = django.db.models.IntegerField(blank=False)
     selector = django.db.models.CharField(max_length=4048, blank=False)
+    excerpt = django.db.models.CharField(max_length=4048, blank=False)
 
     def __unicode__(self):
         return "%s: %s" % (self.document.url, self.selector)

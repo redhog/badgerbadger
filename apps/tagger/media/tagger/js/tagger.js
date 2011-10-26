@@ -10,7 +10,7 @@ $(document).ready(function () {
     var twitter = document.createElement('a');
     twitter.setAttribute('href', 'http://twitter.com/share');
     twitter.setAttribute('class', 'twitter-share-button twitter-tweet');
-    twitter.setAttribute('data-url', document.location.toString().split("#")[0] + "#selection_" + $(".tag_dialog")[0].selection.order);
+    twitter.setAttribute('data-url', document.location.origin + "/g/" + $(".tag_dialog")[0].selection.id);  //document.location.toString().split("#")[0] + "#selection_" + $(".tag_dialog")[0].selection.order);
     twitter.setAttribute('data-text', tags.join(" "));
     twitter.setAttribute('data-count', 'horizontal');
     twitter.innerHTML = "Tweet";
@@ -55,8 +55,10 @@ $(document).ready(function () {
     updateTweetButton();
   }
 
-  function wrapSelection(selection) {
-    var sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selection.selector)});
+  function wrapSelection(selection, sel) {
+    if (sel == undefined) {
+      sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selection.selector)});
+    }
     sel.addClass('selection').addClass('selection_' + selection.order);
     sel.bind("click", function () { openDialog(selection); });
   }
@@ -98,17 +100,19 @@ $(document).ready(function () {
     if (range.startContainer == range.endContainer && range.startOffset == range.endOffset) return;
 
     var selector = domToSelector.serializeRange(range);
+    var sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selector)});
 
     $.ajax({
       url: "/badgerbadger/tagger/select/" + tagger.url,
       data: {
         order: tagger.selections.length,
-        selector: JSON.stringify(selector)
+        selector: JSON.stringify(selector),
+	excerpt: sel.map(function () { return $(this).html(); }).get().join(" ").substr(0, 4048),
       },
       success: function (data) {
         var selection = {selector:selector, tags:[], id:data, order:tagger.selections.length};
         tagger.selections.push(selection);
-        wrapSelection(selection);
+        wrapSelection(selection, sel);
 	openDialog(selection);
       },
       dataType: "json"

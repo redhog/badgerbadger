@@ -20,6 +20,21 @@ $(document).ready(function () {
   var domToSelector = new DomToSelector();
   var body = $('body');
 
+  function updateTweetButton() {
+    var tags = $(".tag_dialog")[0].selection.tags.map(function (tag) { return "#" + tag.tag; });
+
+    var twitter = document.createElement('a');
+    twitter.setAttribute('href', 'http://twitter.com/share');
+    twitter.setAttribute('class', 'twitter-share-button twitter-tweet');
+    twitter.setAttribute('data-url', document.location.toString().split("#")[0] + "#selection_" + $(".tag_dialog")[0].selection.order);
+    twitter.setAttribute('data-text', tags.join(" "));
+    twitter.setAttribute('data-count', 'horizontal');
+    twitter.innerHTML = "Tweet";
+
+    $(".tag_dialog .twitter-share-button").replaceWith(twitter);
+    $.getScript("http://platform.twitter.com/widgets.js");
+  }
+
   function removeTag(tag) {
     $(".tag_dialog .tags .tag_" + escape(tag.tag)).remove();
   }
@@ -39,6 +54,7 @@ $(document).ready(function () {
             return value != tag;
           });
 	  removeTag(tag);
+	  updateTweetButton();
 	},
 	dataType: "json"
       });
@@ -52,6 +68,7 @@ $(document).ready(function () {
     $(".tag_dialog .tags" ).html("");
     $.each(selection.tags, function (index, tag) { addTag(tag); });
     $(".tag_dialog .new_tag" ).focus();
+    updateTweetButton();
   }
 
   function wrapSelection(selection) {
@@ -73,6 +90,7 @@ $(document).ready(function () {
 	success: function (data) {
 	  $(".tag_dialog")[0].selection.tags.push(tag);
 	  addTag(tag);
+          updateTweetButton();
 	  $(".tag_dialog .new_tag")[0].value = '';
 	},
 	dataType: "json"

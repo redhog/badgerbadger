@@ -1,6 +1,7 @@
 import django.contrib.admin
 import tagger.models
 
+django.contrib.admin.site.register(tagger.models.MimeTypeCache)
 django.contrib.admin.site.register(tagger.models.Object)
 django.contrib.admin.site.register(tagger.models.TagType)
 django.contrib.admin.site.register(tagger.models.Tag)

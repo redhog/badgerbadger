@@ -4,6 +4,13 @@ import django.contrib.auth.models
 from django.db.models import Q, F
 import fcdjangoutils.modelhelpers
 
+class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
+    mime_type = django.db.models.CharField(max_length=1024, blank=True)
+
+    def __unicode__(self):
+        return "%s (%s)" % (self.url, self.mime_type)
+
 class Object(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     @fcdjangoutils.modelhelpers.subclassproxy
     def __unicode__(self):

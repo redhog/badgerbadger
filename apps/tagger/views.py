@@ -9,6 +9,17 @@ import tagger.models
 import json
 import re
 
+def get_mime_type_cache(url, mime_type = ''):
+    caches = tagger.models.MimeTypeCache.objects.filter(url=url)
+    if caches:
+        return caches[0]
+    cache = tagger.models.MimeTypeCache(url=url, mime_type=mime_type)
+    cache.save()
+    return cache
+
+def get_mime_type(url):
+    return get_mime_type_cache(url).mime_type
+
 def get_document(url):
     docs = tagger.models.Document.objects.filter(url=url)
     if docs:
@@ -16,11 +27,6 @@ def get_document(url):
     doc = tagger.models.Document(url=url)
     doc.save()
     return doc
-
-def get_document_mime_type(url):
-    for doc in tagger.models.Document.objects.filter(url=url):
-        return doc.mime_type
-    return None
 
 def get_tag(name):
     tags = tagger.models.Tag.objects.filter(name=name)
@@ -91,7 +97,7 @@ def view(request, url):
     if not url.startswith("http://"):
         return django.shortcuts.redirect("/badgerbadger/tagger/view/http://" + url)
 
-    mime_type = get_document_mime_type(url)
+    mime_type = get_mime_type(url)
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
         return django.shortcuts.redirect(url)
 
@@ -103,9 +109,8 @@ def view(request, url):
         raise django.http.Http404("Unable to load the page at '%s'" % (url,))
 
     if not mime_type:
-        doc = get_document(url)
-        doc.mime_type = mime_type = info.gettype()
-        doc.save()
+        mime_type = info.gettype()
+        cache = get_mime_type_cache(url, info.gettype())
 
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
         return django.shortcuts.redirect(url)

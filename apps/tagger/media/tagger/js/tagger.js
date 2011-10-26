@@ -63,6 +63,8 @@ $(document).ready(function () {
     sel.bind("click", function () { openDialog(selection); });
   }
 
+  $(".tagger").append("<a class='original' title='Original website' href='" + tagger.url + "'>XXXXXXXXXXXXX</a>");
+
   $(".tag_dialog .new_tag").autocomplete({source: "/badgerbadger/tagger/tags/json"});
   $(".tag_dialog .new_tag").keypress(function (event) {
     if (event.keyCode == 13) { // Enter...

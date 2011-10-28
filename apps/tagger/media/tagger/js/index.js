@@ -55,7 +55,7 @@ $(document).ready(function () {
 
   $(".url").keypress(function (event) {
     if (event.keyCode == 13) { // Enter...
-      document.location = "/badgerbadger/tagger/view/" + escape($(".url")[0].value);
+      document.location = "/badgerbadger/tagger/view?url=" + encodeURIComponent($(".url")[0].value);
     }
   });
 

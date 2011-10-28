@@ -105,7 +105,7 @@ $(document).ready(function () {
     var sel = body.wrapSelection({wrapRange:domToSelector.unserializeRange(selector)});
 
     $.ajax({
-      url: "/badgerbadger/tagger/select/" + tagger.url,
+      url: "/badgerbadger/tagger/select?url=" + tagger.url,
       data: {
         order: tagger.selections.length,
         selector: JSON.stringify(selector),

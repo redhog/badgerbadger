@@ -64,7 +64,8 @@ def add_tag(request):
     return django.http.HttpResponse("true", "text/json");
 
 
-def select(request, url):
+def select(request):
+    url = urllib.unquote(request.GET['url'])
     doc = get_document(url)
     order = int(request.GET['order'])
     selector = request.GET['selector']
@@ -81,7 +82,8 @@ def select(request, url):
     rng.save()
     return django.http.HttpResponse(json.dumps(rng.id), "text/json");
 
-def data(request, url):
+def data(request):
+    url = urllib.unquote(request.GET['url'])
     doc = get_document(url)
     data = [{"selector":json.loads(rng.selector),
              "id": rng.id,
@@ -94,9 +96,11 @@ def data(request, url):
 
 
 #@django.contrib.auth.decorators.login_required
-def view(request, url):
+def view(request):
+    url = urllib.unquote(request.GET['url'])
+    print "VIEW", url
     if not url.startswith("http://"):
-        return django.shortcuts.redirect("/badgerbadger/tagger/view/http://" + url)
+        return django.shortcuts.redirect("/badgerbadger/tagger/view?url=" + urllib.quote_plus("http://" + url))
 
     mime_type = get_mime_type(url)
     if mime_type and mime_type not in ("text/html", "text/xhtml"):
@@ -150,7 +154,7 @@ def go(request, id):
     for obj in tagger.models.Object.objects.filter(id=int(id)):
         obj = obj.subclassobject
         if hasattr(obj, "range"):
-            url = "/badgerbadger/tagger/view/%s#selection_%s" % (urllib.quote(obj.document.url), obj.order)
+            url = "/badgerbadger/tagger/view?url=%s#selection_%s" % (urllib.quote_plus(obj.document.url), obj.order)
             return django.shortcuts.redirect(url)
 
     raise django.http.Http404("Unable to find object with id %s" % (id,))
@@ -162,10 +166,10 @@ def other(request):
     referer = None
     try:
         referer = request.META.get('HTTP_REFERER', '')
-        match = re.match(r".*(/badgerbadger/tagger/view/.*//[^/]*)(/.*)?", referer)
+        match = re.match(r".*(/badgerbadger/tagger/view\?url=.*//[^/]*)(/.*)?", referer)
         if match:
             baseurl = match.groups()[0]
-            url = baseurl + "/" + urllib.quote(url)
+            url = baseurl + "/" + urllib.quote_plus(url)
             return django.shortcuts.redirect(url)
     except:
         import traceback

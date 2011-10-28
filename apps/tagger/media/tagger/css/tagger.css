@@ -153,6 +153,7 @@
   left: 0;
   right: 0;
   bottom: 30px;
+  overflow: auto;
 }
 .tagger .footer {
   padding-left: 10px;

@@ -6,9 +6,9 @@ urlpatterns = patterns('',
 
     (r'^badgerbadger/tagger/tags/json$', "tagger.views.tags_json"),
 
-    (r'^badgerbadger/tagger/select/(?P<url>.*)', "tagger.views.select"),
-    (r'^badgerbadger/tagger/data/(?P<url>.*)', "tagger.views.data"),
-    (r'^badgerbadger/tagger/view/(?P<url>.*)', "tagger.views.view"),
+    (r'^badgerbadger/tagger/select', "tagger.views.select"),
+    (r'^badgerbadger/tagger/data', "tagger.views.data"),
+    (r'^badgerbadger/tagger/view', "tagger.views.view"),
 
     (r'^badgerbadger/tagger/search/?$', "tagger.views.search"),
     (r'^/?$', "tagger.views.index"),

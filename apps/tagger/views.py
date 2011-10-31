@@ -100,7 +100,9 @@ def data(request):
 def view(request):
     url = urllib.unquote(request.GET['url'])
     print "VIEW", url
-    if not url.startswith("http://"):
+    if not url.startswith("http://") or url.startswith("https://"):
+        if ':/' in url:
+            raise django.http.Http404("Sorry, we only dig http and https:// urls, not ones like your '%s'" % (url,))
         return django.shortcuts.redirect("/badgerbadger/tagger/view?url=" + urllib.quote_plus("http://" + url))
 
     mime_type = get_mime_type(url)

@@ -42,12 +42,26 @@
 .tagger h1 {
   font-weight: normal;
   font-style: italic;
+  font-size: 40pt;
+  line-height: 37pt;
+  float: right;
+  margin-top: 0;
+  text-align: right;
+  padding-right: 1em;
 }
 .tagger .subheading {
-  font-size: 11pt;
+  font-size: 20pt;
   font-weight: normal;
   font-style: italic;
-  padding-left: 10em;
+  margin-right: -1.75em;
+}
+
+.tagger .go_tag {
+  margin-bottom: 40px;
+}
+
+.tagger .go_tag input {
+  width: 30%
 }
 
 .tagger .tag_dialog {
@@ -154,6 +168,7 @@
   right: 0;
   bottom: 30px;
   overflow: auto;
+  background: url(/badgerbadger/static/tagger/img/badger.svg) no-repeat top right;
 }
 .tagger .footer {
   padding-left: 10px;

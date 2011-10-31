@@ -8,6 +8,7 @@ import urllib
 import tagger.models
 import json
 import re
+import sys
 
 def get_mime_type_cache(url, mime_type = ''):
     caches = tagger.models.MimeTypeCache.objects.filter(url=url)
@@ -177,3 +178,13 @@ def other(request):
 
     print "Unable to load the page at '%s' from '%s'" % (url, referer)
     raise django.http.Http404("Unable to load the page at '%s' from '%s'" % (url, referer))
+
+def serve404(request):
+    res = django.shortcuts.render_to_response('tagger/404.html', {"exception": sys.exc_info()[1]}, context_instance=django.template.RequestContext(request))
+    res.status_code = 404
+    return res
+
+def serve500(request):
+    res = django.shortcuts.render_to_response('tagger/500.html', {"exception": sys.exc_info()[1]}, context_instance=django.template.RequestContext(request))
+    res.status_code = 500
+    return res

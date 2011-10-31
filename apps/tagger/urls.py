@@ -1,6 +1,8 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
+    (r'^404', "tagger.views.serve404"),
+
     (r'^badgerbadger/tagger/tag/remove$', "tagger.views.remove_tag"),
     (r'^badgerbadger/tagger/tag/add$', "tagger.views.add_tag"),
 
@@ -16,3 +18,4 @@ urlpatterns = patterns('',
     (r'^g/(?P<id>.*)/?$', "tagger.views.go"),
     (r'^', "tagger.views.other"),
 )
+

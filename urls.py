@@ -14,3 +14,6 @@ urlpatterns = patterns(
     (r'', include("staticfiles.urls")),
     *((r'', include(app + '.urls')) for app in settings.LOCAL_APPS)
 )
+
+handler404 = 'tagger.views.serve404'
+handler500 = 'tagger.views.serve500'

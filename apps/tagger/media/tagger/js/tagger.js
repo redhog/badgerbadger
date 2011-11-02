@@ -20,11 +20,11 @@ $(document).ready(function () {
   }
 
   function removeTag(tag) {
-    $(".tag_dialog .tags .tag_" + escape(tag.tag)).remove();
+    $(".tag_dialog .tags .tag_" + $.slug(tag.tag)).remove();
   }
 
   function addTag(tag) {
-   $(".tag_dialog .tags").append("<span class='tag tag_" + escape(tag.tag) + "'><a href='/?tag=" + escape(tag.tag) + "'>" + tag.tag + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
+   $(".tag_dialog .tags").append("<span class='tag tag_" + $.slug(tag.tag) + "'><a href='/?tag=" + escape(tag.tag) + "'>" + tag.tag + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
     $(".tag_dialog .tags .tag:last-child")[0].tag = tag;
     $(".tag_dialog .tags .tag:last-child .remove").bind("click", function () {
       $.ajax({
@@ -63,26 +63,42 @@ $(document).ready(function () {
     sel.bind("click", function () { openDialog(selection); });
   }
 
+  function createTag () {
+    var tag = {'tag': $(".tag_dialog .new_tag")[0].value, 'type': null, 'dst': null};
+    $.ajax({
+      url: "/badgerbadger/tagger/tag/add",
+      data: {
+	id: $(".tag_dialog")[0].selection.id,
+	tag: tag.tag
+      },
+      success: function (data) {
+	$(".tag_dialog")[0].selection.tags.push(tag);
+	addTag(tag);
+	updateTweetButton();
+	$(".tag_dialog .new_tag")[0].value = '';
+      },
+      dataType: "json"
+    });
+  }
+
+
   $(".tagger").append("<a class='original' title='Original website' href='" + tagger.url + "'>XXXXXXXXXXXXX</a>");
+
+  $(".tag_dialog .new_tag").datetimepicker({
+    showOn: "button",
+    changeMonth: true,
+    changeYear: true,
+    buttonImage: "/badgerbadger/static/tagger/img/calendar.gif",
+    buttonImageOnly: true,
+    dateFormat: "'date'=yy-mm-dd",
+    timeFormat: 'hh:mm:ss',
+    constrainInput: false,
+  });
 
   $(".tag_dialog .new_tag").autocomplete({source: "/badgerbadger/tagger/tags/json"});
   $(".tag_dialog .new_tag").keypress(function (event) {
     if (event.keyCode == 13) { // Enter...
-      var tag = {'tag': $(".tag_dialog .new_tag")[0].value, 'type': null, 'dst': null};
-      $.ajax({
-        url: "/badgerbadger/tagger/tag/add",
-	data: {
-  	  id: $(".tag_dialog")[0].selection.id,
-	  tag: tag.tag
-	},
-	success: function (data) {
-	  $(".tag_dialog")[0].selection.tags.push(tag);
-	  addTag(tag);
-          updateTweetButton();
-	  $(".tag_dialog .new_tag")[0].value = '';
-	},
-	dataType: "json"
-      });
+      createTag();
     }
   });
 

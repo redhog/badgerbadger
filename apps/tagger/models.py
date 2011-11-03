@@ -58,3 +58,9 @@ class Range(Object):
 
     class Meta:
         unique_together = (("document", "order"),)
+
+class TimeStamp(Object):
+    time = django.db.models.DateField()
+
+    def __unicode__(self):
+        return unicode(self.time)

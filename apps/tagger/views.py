@@ -38,10 +38,11 @@ def get_tag(name):
     return tag
 
 
+# Returns data useful for both tab-completion and getting tag metadata
 def tags_json(request):
     term = request.GET['term']
 
-    data = [{"id": tag.id, "label": tag.name, "value": tag.name}
+    data = [{"id": tag.id, "label": tag.name, "value": tag.name, "tag": tag.name, "type": tag.type and tag.type.name}
             for tag in
             tagger.models.Tag.objects.filter(name__icontains = term)[:10]]
     

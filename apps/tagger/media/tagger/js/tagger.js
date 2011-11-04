@@ -1,35 +1,89 @@
 (function ($) {
 
+$.datepicker._hideDatepicker_tagger_old = $.datepicker._hideDatepicker;
+$.datepicker._hideDatepicker = function (input) {
+  var inst = this._curInst;
+  if (!inst || (input && inst != $.data(input, "datepicker"))) {
+    inst = $.datepicker._getInst($(event.target).parents(".hasDatepicker")[0]);
+    $.datepicker._triggerOnClose(inst);
+  } else {
+    return $.datepicker._hideDatepicker_tagger_old(input);
+  }
+};
+
 TagDialog = function (widget) {
   var dialog = this;
   if (widget === undefined)
     widget = ".tag_dialog";
   dialog.widget = $(widget)[0];
-  $(widget).find(".new_tag").autocomplete({source: "/badgerbadger/tagger/tags/json"});
+  $(widget).find(".new_tag").autocomplete({
+    source: "/badgerbadger/tagger/tags/json",
+    select: function (event, ui) { return dialog.newTagSelect(event, ui); }
+  });
   $(widget).find(".new_tag").keypress(function (event) { return dialog.newTagKeypress(event); });
-  $('.tag_dialog .exit').bind("click", function () { $('.tag_dialog').hide(); });
+  $(widget).find(".TimeStamp .date").datetimepicker({
+    // showButtonPanel: false,
+    changeMonth: true,
+    changeYear: true,
+    dateFormat: "yy-mm-dd",
+    timeFormat: 'hh:mm:ss',
+    onSelect: function(dateText, inst) { console.log(["select", dateText, inst]); },
+    onClose: function(dateText, inst) { console.log(["close", dateText, inst]); }
+  });
+
+  $(widget).find('.exit').bind("click", function () { $('.tag_dialog').hide(); });
+
+  $(widget).find(".types .type").each(function () {
+    var type = $(this).attr("class").split(" ")[1];
+    $(this).bind("click", function () { dialog.toggleType(type); });
+  });
 };
 TagDialog.prototype = new Object();
 TagDialog.prototype.newTagKeypress = function (event) {
-  var dialog = this;
-  
   if (event.keyCode == 13) { // Enter...
-    var tag = {'tag': $(dialog.widget).find(".new_tag")[0].value, 'type': null, 'dst': null};
-    $.ajax({
-      url: "/badgerbadger/tagger/tag/add",
-      data: {
-	id: dialog.widget.selection.id,
-	tag: tag.tag
-      },
-      success: function (data) {
-	dialog.widget.selection.tags.push(tag);
-	dialog.addTag(tag);
-	dialog.updateTweetButton();
-	$(dialog.widget).find(".new_tag")[0].value = '';
-      },
-      dataType: "json"
-    });
+    this.newTagCreate();
   }
+};
+TagDialog.prototype.newTagSelect = function (event, ui) {
+};
+TagDialog.prototype.newTagCreate = function () {
+  var dialog = this;
+  var tag = {'tag': $(dialog.widget).find(".new_tag")[0].value, 'dst': dialog.dst};
+  $.ajax({
+    url: "/badgerbadger/tagger/tag/add",
+    data: {
+      id: dialog.widget.selection.id,
+      tag: tag.tag
+    },
+    success: function (data) {
+      dialog.widget.selection.tags.push(tag);
+      dialog.addTag(tag);
+      dialog.updateTweetButton();
+      $(dialog.widget).find(".new_tag")[0].value = '';
+      $(dialog.widget).find(".values .value").hide();
+    },
+    dataType: "json"
+  });
+};
+TagDialog.prototype.selectType = function (type) {
+  var dialog = this;
+  if (dialog.type)
+    $(dialog.widget).find(".values .value." + dialog.type).hide();
+  dialog.type = type;
+  $(dialog.widget).find(".values .value." + dialog.type).show();
+};
+TagDialog.prototype.toggleType = function (type) {
+  var dialog = this;
+
+  if (dialog.type == type) {
+    dialog.selectType();
+  } else {
+    dialog.selectType(type);
+  }
+};
+TagDialog.prototype.getLink = function() {
+  // document.location.toString().split("#")[0] + "#selection_" + this.widget.selection.order;
+  return document.location.origin + "/g/" + this.widget.selection.id;
 };
 TagDialog.prototype.updateTweetButton = function() {
   var widget = this.widget;
@@ -38,8 +92,7 @@ TagDialog.prototype.updateTweetButton = function() {
   var twitter = document.createElement('a');
   twitter.setAttribute('href', 'http://twitter.com/share');
   twitter.setAttribute('class', 'twitter-share-button twitter-tweet');
-  // document.location.toString().split("#")[0] + "#selection_" + widget.selection.order;
-  twitter.setAttribute('data-url', document.location.origin + "/g/" + widget.selection.id);
+  twitter.setAttribute('data-url', this.getLink());
   twitter.setAttribute('data-text', tags.join(" "));
   twitter.setAttribute('data-count', 'horizontal');
   twitter.innerHTML = "Tweet";
@@ -80,12 +133,16 @@ TagDialog.prototype.open = function(selection) {
   var widget = this.widget;
   var sel = $('.selection_' + selection.order);
 
+  dialog.dst = null;
   widget.selection = selection;
   $(widget).css({display: "block", top: sel.offset().top + sel.height(), left: sel.offset().left});
+  $(widget).find(".selection_link").html(this.getLink());
+  $(widget).find(".selection_link").attr("href", this.getLink());
   $(widget).find(".tags" ).html("");
   $.each(selection.tags, function (index, tag) { dialog.addTag(tag); });
   $(widget).find(".new_tag" ).attr("value", "");
   $(widget).find(".new_tag" ).focus();
+  dialog.selectType();
   dialog.updateTweetButton();
 };
 

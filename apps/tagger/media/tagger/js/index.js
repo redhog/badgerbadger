@@ -29,13 +29,13 @@ $(document).ready(function () {
   }
 
   function removeTag(tag) {
-    $(".search .tags .tag_" + escape(tag)).remove();
+    $(".search .tags .tag_" + $.slug(tag)).remove();
     updateSearch();
   }
 
   function addTag(tag) {
     if (tag != '') {
-      $(".search .tags").append("<span class='tag tag_" + escape(tag) + "'>" + tag + "<a href='javascript: 0;' class='remove'>X</a></span> ");
+      $(".search .tags").append("<span class='tag tag_" + $.slug(tag) + "'>" + tag + "<a href='javascript: 0;' class='remove'>X</a></span> ");
       $(".search .tags .tag:last-child")[0].tag = tag;
       console.log([$(".search .tags .tag:last-child")[0], $(".search .tags .tag:last-child")[0].tag]);
       $(".search .tags :last-child .remove").bind("click", function () {

@@ -48,7 +48,7 @@ TagDialog.prototype.newTagSelect = function (event, ui) {
 };
 TagDialog.prototype.newTagCreate = function () {
   var dialog = this;
-  var tag = {'tag': $(dialog.widget).find(".new_tag")[0].value, 'dst': dialog.dst};
+  var tag = {'tag': $(dialog.widget).find(".new_tag")[0].value, 'type': null, 'dst': dialog.dst};
   $.ajax({
     url: "/badgerbadger/tagger/tag/add",
     data: {

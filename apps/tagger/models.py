@@ -3,6 +3,8 @@ import idmapper.models
 import django.contrib.auth.models
 from django.db.models import Q, F
 import fcdjangoutils.modelhelpers
+import fcdjangoutils.jsonview
+
 
 class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
@@ -64,3 +66,20 @@ class TimeStamp(Object):
 
     def __unicode__(self):
         return unicode(self.time)
+
+
+
+# @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Object)
+# def conv(self, obj):
+#     sub = obj.subclassobject
+#     if type(sub) is not type(obj) return sub
+ 
+#     return {'__cliqueclique_document_models_Document__': True,
+#             'document_id': obj.document_id,
+#             'parent_document_id': obj.parent_document_id,
+#             'child_document_id': obj.child_document_id,
+#             'content': obj.content.as_mime}
+
+# @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__cliqueclique_document_models_DocumentSubscription_export__')
+# def conv(self, obj):
+#     return DocumentSubscription.objects.get(document__document_id = obj['document_id']).export()

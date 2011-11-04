@@ -9,6 +9,7 @@ import tagger.models
 import json
 import re
 import sys
+import fcdjangoutils.jsonview
 
 def get_mime_type_cache(url, mime_type = ''):
     caches = tagger.models.MimeTypeCache.objects.filter(url=url)
@@ -37,35 +38,35 @@ def get_tag(name):
     tag.save()
     return tag
 
-
 # Returns data useful for both tab-completion and getting tag metadata
+@fcdjangoutils.jsonview.json_view
 def tags_json(request):
     term = request.GET['term']
 
-    data = [{"id": tag.id, "label": tag.name, "value": tag.name, "tag": tag.name, "type": tag.type and tag.type.name}
+    return [{"id": tag.id, "label": tag.name, "value": tag.name, "tag": tag.name, "type": tag.type and tag.type.name}
             for tag in
             tagger.models.Tag.objects.filter(name__icontains = term)[:10]]
-    
-    return django.http.HttpResponse(json.dumps(data), "text/json")
 
-
+@fcdjangoutils.jsonview.json_view
 def remove_tag(request):
     src = tagger.models.Object.objects.get(id=int(request.GET['id']))
     tag = get_tag(request.GET['tag'])
 
     for tagging in tagger.models.Tagging.objects.filter(src=src, tag=tag):
         tagging.delete()
-    return django.http.HttpResponse("true", "text/json");
+    return True
 
+@fcdjangoutils.jsonview.json_view
 def add_tag(request):
     src = tagger.models.Object.objects.get(id=int(request.GET['id']))
     tag = get_tag(request.GET['tag'])
 
     tagging = tagger.models.Tagging(src=src, tag=tag)
     tagging.save()
-    return django.http.HttpResponse("true", "text/json");
+    return True
 
 
+@fcdjangoutils.jsonview.json_view
 def select(request):
     url = urllib.unquote(request.GET['url'])
     doc = get_document(url)
@@ -82,7 +83,8 @@ def select(request):
 
     rng = tagger.models.Range(document=doc, order=order, selector=selector, excerpt=excerpt)
     rng.save()
-    return django.http.HttpResponse(json.dumps(rng.id), "text/json");
+    return rng.id
+
 
 def data(request):
     url = urllib.unquote(request.GET['url'])
@@ -93,7 +95,8 @@ def data(request):
              "tags": [{'tag': tagging.tag.name, 'type': tagging.tag.type and tagging.tag.type.name, 'dst': tagging.dst and tagging.dst.id}
                       for tagging in rng.tags.all()]}
             for rng in doc.ranges.order_by("order")]
-    data = django.template.loader.get_template('tagger/data.js').render(django.template.RequestContext(request, {"url": url, "selections": json.dumps(data)})).encode("utf-8")
+    data = django.utils.simplejson.dumps(data, default=fcdjangoutils.jsonview.JsonEncodeRegistry().jsonify)
+    data = django.template.loader.get_template('tagger/data.js').render(django.template.RequestContext(request, {"url": url, "selections": data})).encode("utf-8")
     return django.http.HttpResponse(data, "text/javascript");
 
 

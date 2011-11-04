@@ -83,3 +83,16 @@ class TimeStamp(Object):
 # @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__cliqueclique_document_models_DocumentSubscription_export__')
 # def conv(self, obj):
 #     return DocumentSubscription.objects.get(document__document_id = obj['document_id']).export()
+
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tagging)
+def conv(self, obj):
+    return {'tag': obj.tag.name,
+            'type': obj.tag.type and obj.tag.type.name,
+            'dst': obj.dst and obj.dst.id}
+
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Range)
+def conv(self, obj):
+    return {"selector": fcdjangoutils.jsonview.from_json(obj.selector),
+             "id": obj.id,
+             "order": obj.order,
+             "tags": obj.tags.all()}

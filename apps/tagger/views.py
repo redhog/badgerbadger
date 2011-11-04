@@ -95,7 +95,7 @@ def data(request):
              "tags": [{'tag': tagging.tag.name, 'type': tagging.tag.type and tagging.tag.type.name, 'dst': tagging.dst and tagging.dst.id}
                       for tagging in rng.tags.all()]}
             for rng in doc.ranges.order_by("order")]
-    data = django.utils.simplejson.dumps(data, default=fcdjangoutils.jsonview.JsonEncodeRegistry().jsonify)
+    data = fcdjangoutils.jsonview.to_json(data)
     data = django.template.loader.get_template('tagger/data.js').render(django.template.RequestContext(request, {"url": url, "selections": data})).encode("utf-8")
     return django.http.HttpResponse(data, "text/javascript");
 

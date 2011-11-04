@@ -68,31 +68,21 @@ class TimeStamp(Object):
         return unicode(self.time)
 
 
-
-# @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Object)
-# def conv(self, obj):
-#     sub = obj.subclassobject
-#     if type(sub) is not type(obj) return sub
- 
-#     return {'__cliqueclique_document_models_Document__': True,
-#             'document_id': obj.document_id,
-#             'parent_document_id': obj.parent_document_id,
-#             'child_document_id': obj.child_document_id,
-#             'content': obj.content.as_mime}
-
 # @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__cliqueclique_document_models_DocumentSubscription_export__')
 # def conv(self, obj):
 #     return DocumentSubscription.objects.get(document__document_id = obj['document_id']).export()
 
 @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tagging)
 def conv(self, obj):
-    return {'tag': obj.tag.name,
+    return {'__tagger_models_Tagging__': True,
+            'tag': obj.tag.name,
             'type': obj.tag.type and obj.tag.type.name,
             'dst': obj.dst and obj.dst.id}
 
 @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Range)
 def conv(self, obj):
-    return {"selector": fcdjangoutils.jsonview.from_json(obj.selector),
-             "id": obj.id,
-             "order": obj.order,
-             "tags": obj.tags.all()}
+    return {'__tagger_models_Range__': True,
+            "selector": fcdjangoutils.jsonview.from_json(obj.selector),
+            "id": obj.id,
+            "order": obj.order,
+            "tags": obj.tags.all()}

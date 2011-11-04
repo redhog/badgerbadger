@@ -171,19 +171,21 @@ def go(request, id):
 def other(request):
     url = request.get_full_path()
     referer = None
+    baseurl = None
     try:
         referer = request.META.get('HTTP_REFERER', '')
-        match = re.match(r".*(/badgerbadger/tagger/view\?url=.*//[^/]*)(/.*)?", referer)
+        match = re.match(r"(.*/badgerbadger/tagger/view\?url=)(.*//[^/]*)(/.*)?", urllib.unquote(referer))
         if match:
-            baseurl = match.groups()[0]
-            url = baseurl + "/" + urllib.quote_plus(url)
+            server = match.groups()[0]
+            baseurl = match.groups()[1]
+            url = server + urllib.quote_plus(baseurl + "/" + url)
             return django.shortcuts.redirect(url)
     except:
         import traceback
         traceback.print_exc()
 
-    print "Unable to load the page at '%s' from '%s'" % (url, referer)
-    raise django.http.Http404("Unable to load the page at '%s' from '%s'" % (url, referer))
+    print "Unable to load the page at '%s' from '%s' (from referer '%s')" % (url, baseurl, referer)
+    raise django.http.Http404("Unable to load the page at '%s' from '%s' (from referer '%s')" % (url, baseurl, referer))
 
 def serve404(request):
     res = django.shortcuts.render_to_response('tagger/404.html', {"exception": sys.exc_info()[1]}, context_instance=django.template.RequestContext(request))

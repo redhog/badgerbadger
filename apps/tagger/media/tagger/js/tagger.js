@@ -24,6 +24,15 @@ $.datepicker._hideDatepicker = function (input) {
   }
 };
 
+
+$.jsonGetType = function (json) {
+  for (var name in json) {
+    if (name.substr(0, 2) == '__' && name.substr(name.length-2) == '__')
+      return name.substr(2, name.length-4);
+  }
+  return undefined;
+};
+
 TagDialog = function (widget) {
   var dialog = this;
   if (widget === undefined)
@@ -33,15 +42,15 @@ TagDialog = function (widget) {
     source: "/badgerbadger/tagger/tags/json",
     select: function (event, ui) { return dialog.newTagSelect(event, ui); }
   });
-  $(widget).find(".new_tag").keypress(function (event) { return dialog.newTagKeypress(event); });
-  $(widget).find(".TimeStamp .date").datetimepicker({
+  $(widget).find(".new_tag").keypress(function (event) { dialog.newTagKeypress(event); });
+  $(widget).find(".tagger_models_TimeStamp .date_widget").datetimepicker({
     // showButtonPanel: false,
     changeMonth: true,
     changeYear: true,
     dateFormat: "yy-mm-dd",
     timeFormat: 'hh:mm:ss',
-    onSelect: function(dateText, inst) { console.log(["select", dateText, inst]); },
-    onClose: function(dateText, inst) { console.log(["close", dateText, inst]); }
+    onSelect: function(dateText, inst) { $(widget).find(".tagger_models_TimeStamp .date")[0].value = dateText; },
+    onClose: function(dateText, inst) { dialog.createTagging(); }
   });
 
   $(widget).find('.exit').bind("click", function () { $('.tag_dialog').hide(); });
@@ -103,9 +112,15 @@ TagDialog.prototype.addTagging = function(tagging) {
   var widget = dialog.widget;
   var tags = $(widget).find(".tags");
   
-  tags.append("<span class='tag tag_" + tagging.id + "'><a href='/?tag=" + escape(tagging.tag.name) + "'>" + tagging.tag.name + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
+  tags.append("<span class='tag tag_" + tagging.id + "'><a href='/?tag=" + escape(tagging.tag.name) + "'>"
+	      + tagging.tag.name
+	      + (tagging.dst ? '=' + dialog["renderDst_" + $.jsonGetType(tagging.dst)](tagging.dst) : '')
+	      + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
   tags.find(".tag:last-child")[0].tagging = tagging;
   tags.find(".tag:last-child .remove").bind("click", function () { dialog.deleteTagging(tagging); });
+};
+TagDialog.prototype.renderDst_tagger_models_TimeStamp = function (dst) {
+  return dst.time;
 };
 TagDialog.prototype.deleteTagging = function(tagging) {
   var dialog = this;
@@ -126,31 +141,56 @@ TagDialog.prototype.deleteTagging = function(tagging) {
 };
 TagDialog.prototype.createTagging = function () {
   var dialog = this;
-  var tagging = {
-    '__tagger_models_Tagging__': true,
-    'src': {'__tagger_models_Range__': true, 'id':dialog.widget.selection.id},
-    'tag': {'__tagger_models_Tag__': true, name: $(dialog.widget).find(".new_tag")[0].value, 'type': null},
-    'dst': dialog.dst
+  var widget = dialog.widget;
+  if ($(dialog.widget).find(".new_tag")[0].value == '') return;
+  dialog["createDst_" + dialog.type](function (dst) {
+    var tagging = {
+      '__tagger_models_Tagging__': true,
+      'src': {'__tagger_models_Range__': true, 'id':dialog.widget.selection.id},
+      'tag': {'__tagger_models_Tag__': true, name: $(dialog.widget).find(".new_tag")[0].value, 'type': null},
+      'dst': dst
+    };
+    $.jsonviewajax({
+      url: "/badgerbadger/tagger/create",
+      data: {obj: JSON.stringify(tagging)},
+      success: function (tagging) {
+	dialog.widget.selection.tags.push(tagging);
+	dialog.addTagging(tagging);
+	dialog.updateTweetButton();
+	$(dialog.widget).find(".new_tag")[0].value = '';
+	dialog.selectType();
+      },
+      dataType: "json"
+    });
+  });
+};
+TagDialog.prototype.createDst_undefined = function (callback) {
+  return callback(null);
+};
+TagDialog.prototype.createDst_tagger_models_TimeStamp = function (callback) {
+  var dialog = this;
+  var widget = dialog.widget;
+  var timestamp = {
+    '__tagger_models_TimeStamp__': true,
+    'time': $(widget).find(".tagger_models_TimeStamp .date")[0].value,
   };
   $.jsonviewajax({
     url: "/badgerbadger/tagger/create",
-    data: {obj: JSON.stringify(tagging)},
-    success: function (tagging) {
-      dialog.widget.selection.tags.push(tagging);
-      dialog.addTagging(tagging);
-      dialog.updateTweetButton();
-      $(dialog.widget).find(".new_tag")[0].value = '';
-      $(dialog.widget).find(".values .value").hide();
+    data: {obj: JSON.stringify(timestamp)},
+    success: function (timestamp) {
+      callback(timestamp);
     },
     dataType: "json"
   });
+};
+TagDialog.prototype.createDst_tagger_models_MapPoint = function (callback) {
+  return callback(null);
 };
 TagDialog.prototype.open = function(selection) {
   var dialog = this;
   var widget = this.widget;
   var sel = $('.selection_' + selection.order);
 
-  dialog.dst = null;
   widget.selection = selection;
   $(widget).css({display: "block", top: sel.offset().top + sel.height(), left: sel.offset().left});
   $(widget).find(".selection_link").html(this.getLink());

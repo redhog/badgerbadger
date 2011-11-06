@@ -9,15 +9,16 @@
     <div>
       <input class="new_tag" />
       <span class="types">
-        <a href="javascript: void(0);" class="type TimeStamp"><img src="/badgerbadger/static/tagger/img/calendar.gif"></a>
-        <a href="javascript: void(0);" class="type MapPoint"><img src="/badgerbadger/static/tagger/img/map.gif"></a>
+        <a href="javascript: void(0);" class="type tagger_models_TimeStamp"><img src="/badgerbadger/static/tagger/img/calendar.gif"></a>
+        <a href="javascript: void(0);" class="type tagger_models_MapPoint"><img src="/badgerbadger/static/tagger/img/map.gif"></a>
       </span>
     </div>
     <div class="values">
-      <div class="value TimeStamp">
-        <span class="date"></span>
+      <div class="value tagger_models_TimeStamp">
+        <input type="hidden" class="date">
+        <span class="date_widget"></span>
       </div>
-      <div class="value MapPoint">
+      <div class="value tagger_models_MapPoint">
         Map goes here
       </div>
     </div>

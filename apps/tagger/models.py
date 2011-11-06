@@ -25,7 +25,8 @@ class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasMo
 class Object(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     @fcdjangoutils.modelhelpers.subclassproxy
     def __unicode__(self):
-        raise fcdjangoutils.modelhelpers.MustBeOverriddenError
+        return "Instance of Object. Bad objectification."
+        #raise fcdjangoutils.modelhelpers.MustBeOverriddenError
 
 
 @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Object)
@@ -109,7 +110,7 @@ class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMix
     time = django.db.models.DateField(auto_now=True)
 
     def __unicode__(self):
-        return "%s of %s" % (self.tag, self.src)
+        return "%s of %s" % (self.tag.name, self.src.subclassobject)
 
     class Meta:
         unique_together = (("src", "tag", "dst"),)
@@ -120,7 +121,7 @@ def conv(self, obj):
             "id": obj.id,
             'src': {'__tagger_models_Object__': True, "id":obj.src.id},
             'tag': obj.tag,
-            'dst': obj.dst}
+            'dst': obj.dst and obj.dst.subclassobject or None}
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Tagging__')
 def conv(self, obj):
@@ -205,7 +206,7 @@ def conv(self, obj):
 
 
 class TimeStamp(Object):
-    time = django.db.models.DateField()
+    time = django.db.models.DateTimeField()
 
     def __unicode__(self):
         return unicode(self.time)

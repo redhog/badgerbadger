@@ -41,29 +41,10 @@ TagDialog = function (widget) {
 TagDialog.prototype = new Object();
 TagDialog.prototype.newTagKeypress = function (event) {
   if (event.keyCode == 13) { // Enter...
-    this.newTagCreate();
+    this.createTagging();
   }
 };
 TagDialog.prototype.newTagSelect = function (event, ui) {
-};
-TagDialog.prototype.newTagCreate = function () {
-  var dialog = this;
-  var tag = {'tag': $(dialog.widget).find(".new_tag")[0].value, 'type': null, 'dst': dialog.dst};
-  $.ajax({
-    url: "/badgerbadger/tagger/tag/add",
-    data: {
-      id: dialog.widget.selection.id,
-      tag: tag.tag
-    },
-    success: function (data) {
-      dialog.widget.selection.tags.push(tag);
-      dialog.addTag(tag);
-      dialog.updateTweetButton();
-      $(dialog.widget).find(".new_tag")[0].value = '';
-      $(dialog.widget).find(".values .value").hide();
-    },
-    dataType: "json"
-  });
 };
 TagDialog.prototype.selectType = function (type) {
   var dialog = this;
@@ -100,32 +81,56 @@ TagDialog.prototype.updateTweetButton = function() {
   $(widget).find(".twitter-share-button").replaceWith(twitter);
   $.getScript("http://platform.twitter.com/widgets.js");
 };
-TagDialog.prototype.removeTag = function(tag) {
-  $(this.widget).find(".tags .tag_" + escape(tag.tag)).remove();
+
+TagDialog.prototype.removeTagging = function(tagging) {
+  $(this.widget).find(".tags .tag_" + tagging.id).remove();
 };
-TagDialog.prototype.addTag = function(tag) {
+TagDialog.prototype.addTagging = function(tagging) {
   var dialog = this;
   var widget = dialog.widget;
   var tags = $(widget).find(".tags");
   
-  tags.append("<span class='tag tag_" + escape(tag.tag) + "'><a href='/?tag=" + escape(tag.tag) + "'>" + tag.tag + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
-  tags.find(".tag:last-child")[0].tag = tag;
-  tags.find(".tag:last-child .remove").bind("click", function () {
-    $.ajax({
-      url: "/badgerbadger/tagger/tag/remove",
-      data: {
-	id: widget.selection.id,
-	tag: tag.tag
-      },
-      success: function (data) {
-	widget.selection.tags = $.grep(widget.selection.tags, function(value) {
-	  return value != tag;
-	});
-	dialog.removeTag(tag);
-	dialog.updateTweetButton();
-      },
-      dataType: "json"
-    });
+  tags.append("<span class='tag tag_" + tagging.id + "'><a href='/?tag=" + escape(tagging.tag.name) + "'>" + tagging.tag.name + "</a><a href='javascript: void(0);' class='remove'>X</a></span> ");
+  tags.find(".tag:last-child")[0].tagging = tagging;
+  tags.find(".tag:last-child .remove").bind("click", function () { dialog.deleteTagging(tagging); });
+};
+TagDialog.prototype.deleteTagging = function(tagging) {
+  var dialog = this;
+  var widget = dialog.widget;
+
+  $.ajax({
+    url: "/badgerbadger/tagger/tag/remove",
+    data: {
+      id: widget.selection.id,
+      tag: tagging.tag.name
+    },
+    success: function (data) {
+      widget.selection.tags = $.grep(widget.selection.tags, function(value) {
+	return value.id != tagging.id;
+      });
+      dialog.removeTagging(tagging);
+      dialog.updateTweetButton();
+    },
+    dataType: "json"
+  });
+};
+TagDialog.prototype.createTagging = function () {
+  var dialog = this;
+  var tagging = {'tag': {name: $(dialog.widget).find(".new_tag")[0].value, 'type': null}, 'dst': dialog.dst};
+  $.ajax({
+    url: "/badgerbadger/tagger/tag/add",
+    data: {
+      id: dialog.widget.selection.id,
+      tag: tagging.tag.name
+    },
+    success: function (data) {
+      dialog.widget.selection.tags.push(tagging);
+      dialog.addTagging(tagging);
+      dialog.updateTweetButton();
+      $(dialog.widget).find(".new_tag")[0].value = '';
+      $(dialog.widget).find(".values .value").hide();
+    },
+    dataType: "json"
   });
 };
 TagDialog.prototype.open = function(selection) {
@@ -139,7 +144,7 @@ TagDialog.prototype.open = function(selection) {
   $(widget).find(".selection_link").html(this.getLink());
   $(widget).find(".selection_link").attr("href", this.getLink());
   $(widget).find(".tags" ).html("");
-  $.each(selection.tags, function (index, tag) { dialog.addTag(tag); });
+  $.each(selection.tags, function (index, tag) { dialog.addTagging(tag); });
   $(widget).find(".new_tag" ).attr("value", "");
   $(widget).find(".new_tag" ).focus();
   dialog.selectType();

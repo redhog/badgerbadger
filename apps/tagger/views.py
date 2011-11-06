@@ -63,6 +63,12 @@ def add_tag(request):
 
 
 @fcdjangoutils.jsonview.json_view
+def create_object(request):
+    obj = fcdjangoutils.jsonview.from_json(request.GET['obj'])
+    obj.save()
+    return obj
+
+@fcdjangoutils.jsonview.json_view
 def select(request):
     url = urllib.unquote(request.GET['url'])
     doc = get_document(url)

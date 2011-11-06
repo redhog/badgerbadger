@@ -7,6 +7,12 @@ import fcdjangoutils.modelhelpers
 import fcdjangoutils.jsonview
 
 
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(django.db.models.query.QuerySet)
+def modelconv(self, obj):
+    return list(obj)
+
+
+
 class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
     mime_type = django.db.models.CharField(max_length=1024, blank=True)
@@ -14,10 +20,14 @@ class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasMo
     def __unicode__(self):
         return "%s (%s)" % (self.url, self.mime_type)
 
+
+
 class Object(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     @fcdjangoutils.modelhelpers.subclassproxy
     def __unicode__(self):
         raise fcdjangoutils.modelhelpers.MustBeOverriddenError
+
+
 
 class TagType(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     name = django.db.models.CharField(max_length=255, unique=True, blank=False)
@@ -25,12 +35,51 @@ class TagType(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMix
     def __unicode__(self):
         return self.name
 
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(TagType)
+def conv(self, obj):
+    return {'__tagger_models_TagType__': True,
+            "id": obj.id,
+            "name": obj.name}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_TagType__')
+def conv(self, obj):
+    if "id" in obj:
+        return TagType.objects.get(id=obj["id"])
+    del obj["__tagger_models_TagType__"]
+    obj = TagType(**obj)
+    obj.save()
+    return obj
+
+
+
 class Tag(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     name = django.db.models.CharField(max_length=1024, unique=True, blank=True)
     type = django.db.models.ForeignKey(TagType, related_name="tags", null=True, blank=True)
 
     def __unicode__(self):
         return self.name
+
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tag)
+def conv(self, obj):
+    return {'__tagger_models_Tag__': True,
+            "id": obj.id,
+            "label": obj.name,
+            "value": obj.name,
+            "name": obj.name,
+            "type": obj.type}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Tag__')
+def conv(self, obj):
+    if "id" in obj:
+        return Tag.objects.get(id=obj["id"])
+    del obj["__tagger_models_Tag__"]
+    if "label" in obj: del obj["label"]
+    if "value" in obj: del obj["value"]
+    obj = Tag(**obj)
+    obj.save()
+    return obj
+
+
 
 class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     src = django.db.models.ForeignKey(Object, related_name="tags", null=False, blank=True)
@@ -44,11 +93,49 @@ class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMix
     class Meta:
         unique_together = (("src", "tag", "dst"),)
 
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tagging)
+def conv(self, obj):
+    return {'__tagger_models_Tagging__': True,
+            "id": obj.id,
+            'src': {"id":obj.src.id},
+            'tag': obj.tag,
+            'dst': obj.dst}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Tagging__')
+def conv(self, obj):
+    if "id" in obj:
+        return Tagging.objects.get(id=obj["id"])
+    del obj["__tagger_models_Tagging__"]
+    obj = Tagging(**obj)
+    obj.save()
+    return obj
+
+
+
 class Document(Object):
     url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
 
     def __unicode__(self):
         return self.url
+
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Document)
+def conv(self, obj):
+    return {'__tagger_models_Document__': True,
+            "id": obj.id,
+            "url": obj.url,
+            "tags": obj.tags.all()}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Document__')
+def conv(self, obj):
+    if "id" in obj:
+        return Document.objects.get(id=obj["id"])
+
+    del obj["__tagger_models_Document__"]
+    obj = Document(**obj)
+    obj.save()
+    return obj
+
+
 
 class Range(Object):
     document = django.db.models.ForeignKey(Document, related_name="ranges", null=False)
@@ -62,43 +149,53 @@ class Range(Object):
     class Meta:
         unique_together = (("document", "order"),)
 
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Range)
+def conv(self, obj):
+    return {'__tagger_models_Range__': True,
+            "id": obj.id,
+            "document": obj.document,
+            "order": obj.order,
+            "selector": fcdjangoutils.jsonview.from_json(obj.selector),
+            "excerpt": obj.excerpt,
+            "tags": obj.tags.all()}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Range__')
+def conv(self, obj):
+    if "id" in obj:
+        return Range.objects.get(id=obj["id"])
+
+    selectors = obj['document'].ranges.order_by("-order")
+    if selectors:
+        old_order = selectors[0].order
+        print old_order, obj["order"]
+        assert old_order + 1 == obj["order"]
+    else:
+        assert obj["order"] == 0
+
+    del obj["__tagger_models_Range__"]
+    obj = Range(**obj)
+    obj.save()
+    return obj
+
+
+
 class TimeStamp(Object):
     time = django.db.models.DateField()
 
     def __unicode__(self):
         return unicode(self.time)
 
-
-# @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__cliqueclique_document_models_DocumentSubscription_export__')
-# def conv(self, obj):
-#     return DocumentSubscription.objects.get(document__document_id = obj['document_id']).export()
-
-@fcdjangoutils.jsonview.JsonEncodeRegistry.register(django.db.models.query.QuerySet)
-def modelconv(self, obj):
-    return list(obj)
-
-@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tagging)
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(TimeStamp)
 def conv(self, obj):
-    return {'__tagger_models_Tagging__': True,
-            'tag': obj.tag.name,
-            'type': obj.tag.type and obj.tag.type.name,
-            'dst': obj.dst and obj.dst.id}
-
-@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tag)
-def conv(self, obj):
-    return {'__tagger_models_Tag__': True,
+    return {'__tagger_models_TimeStamp__': True,
             "id": obj.id,
-            "label": obj.name,
-            "value": obj.name,
-            "tag": obj.name,
-            "type": obj.type and obj.type.name}
+            "time": obj.time}
 
-@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Range)
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_TimeStamp__')
 def conv(self, obj):
-    return {'__tagger_models_Range__': True,
-            "selector": fcdjangoutils.jsonview.from_json(obj.selector),
-            "id": obj.id,
-            "order": obj.order,
-            "tags": obj.tags.all()}
-
-            
+    if "id" in obj:
+        return TimeStamp.objects.get(id=obj["id"])
+    del obj["__tagger_models_TimeStamp__"]
+    obj = TimeStamp(**obj)
+    obj.save()
+    return obj

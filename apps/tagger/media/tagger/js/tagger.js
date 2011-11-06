@@ -1,5 +1,18 @@
 (function ($) {
 
+$.jsonviewajax = function (opts) {
+  var success = opts.success;
+  opts.success = function (data) {
+    if (data.error != undefined) {
+      console.error(data.error.type + ": " + data.error.description + "\n\n" + data.error.traceback);
+    } else {
+      return success(data);
+    }
+  }
+  return $.ajax(opts);
+}
+
+
 $.datepicker._hideDatepicker_tagger_old = $.datepicker._hideDatepicker;
 $.datepicker._hideDatepicker = function (input) {
   var inst = this._curInst;
@@ -98,7 +111,7 @@ TagDialog.prototype.deleteTagging = function(tagging) {
   var dialog = this;
   var widget = dialog.widget;
 
-  $.ajax({
+  $.jsonviewajax({
     url: "/badgerbadger/tagger/tag/remove",
     data: {
       id: widget.selection.id,
@@ -116,14 +129,16 @@ TagDialog.prototype.deleteTagging = function(tagging) {
 };
 TagDialog.prototype.createTagging = function () {
   var dialog = this;
-  var tagging = {'tag': {name: $(dialog.widget).find(".new_tag")[0].value, 'type': null}, 'dst': dialog.dst};
-  $.ajax({
-    url: "/badgerbadger/tagger/tag/add",
-    data: {
-      id: dialog.widget.selection.id,
-      tag: tagging.tag.name
-    },
-    success: function (data) {
+  var tagging = {
+    '__tagger_models_Tagging__': true,
+    'src': {'__tagger_models_Range__': true, 'id':dialog.widget.selection.id},
+    'tag': {'__tagger_models_Tag__': true, name: $(dialog.widget).find(".new_tag")[0].value, 'type': null},
+    'dst': dialog.dst
+  };
+  $.jsonviewajax({
+    url: "/badgerbadger/tagger/create",
+    data: {obj: JSON.stringify(tagging)},
+    success: function (tagging) {
       dialog.widget.selection.tags.push(tagging);
       dialog.addTagging(tagging);
       dialog.updateTweetButton();
@@ -204,17 +219,20 @@ SelectableDocument.prototype.mouseUp = function(event){
   var selector = doc.domToSelector.serializeRange(range);
   var sel = $(doc.widget).wrapSelection({wrapRange:doc.domToSelector.unserializeRange(selector)});
 
-  $.ajax({
-    url: "/badgerbadger/tagger/select?url=" + tagger.url,
-    data: {
-      order: tagger.selections.length,
-      selector: JSON.stringify(selector),
-      excerpt: sel.map(function () { return $(this).html(); }).get().join(" ").substr(0, 4048),
-    },
-    success: function (data) {
-      tagger.selections.push(data);
-      doc.wrapSelection(data, sel);
-      doc.dialog.open(data);
+  var selection = {
+    __tagger_models_Range__: true,
+    document: {__tagger_models_Document__: true, url: tagger.url},
+    order: tagger.selections.length,
+    selector: selector,
+    excerpt: sel.map(function () { return $(this).html(); }).get().join(" ").substr(0, 4048)
+  };
+  $.jsonviewajax({
+    url: "/badgerbadger/tagger/create",
+    data: {obj: JSON.stringify(selection)},
+    success: function (selection) {
+      tagger.selections.push(selection);
+      doc.wrapSelection(selection, sel);
+      doc.dialog.open(selection);
     },
     dataType: "json"
   });

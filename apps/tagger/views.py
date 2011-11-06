@@ -52,40 +52,12 @@ def remove_tag(request):
         tagging.delete()
     return True
 
-@fcdjangoutils.jsonview.json_view
-def add_tag(request):
-    src = tagger.models.Object.objects.get(id=int(request.GET['id']))
-    tag = get_tag(request.GET['tag'])
-
-    tagging = tagger.models.Tagging(src=src, tag=tag)
-    tagging.save()
-    return tagging
-
 
 @fcdjangoutils.jsonview.json_view
 def create_object(request):
     obj = fcdjangoutils.jsonview.from_json(request.GET['obj'])
     obj.save()
     return obj
-
-@fcdjangoutils.jsonview.json_view
-def select(request):
-    url = urllib.unquote(request.GET['url'])
-    doc = get_document(url)
-    order = int(request.GET['order'])
-    selector = request.GET['selector']
-    excerpt = request.GET['excerpt']
-    selectors = doc.ranges.order_by("-order")
-    if selectors:
-        old_order = selectors[0].order
-        print old_order, order
-        assert old_order + 1 == order
-    else:
-        assert order == 0
-
-    rng = tagger.models.Range(document=doc, order=order, selector=selector, excerpt=excerpt)
-    rng.save()
-    return rng
 
 
 def data(request):

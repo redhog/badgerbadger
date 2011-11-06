@@ -6,11 +6,9 @@ urlpatterns = patterns('',
     (r'^badgerbadger/tagger/create', "tagger.views.create_object"),
 
     (r'^badgerbadger/tagger/tag/remove$', "tagger.views.remove_tag"),
-    (r'^badgerbadger/tagger/tag/add$', "tagger.views.add_tag"),
 
     (r'^badgerbadger/tagger/tags/json$', "tagger.views.tags_json"),
 
-    (r'^badgerbadger/tagger/select', "tagger.views.select"),
     (r'^badgerbadger/tagger/data', "tagger.views.data"),
     (r'^badgerbadger/tagger/view', "tagger.views.view"),
 

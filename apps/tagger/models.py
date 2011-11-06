@@ -43,9 +43,11 @@ def conv(self, obj):
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_TagType__')
 def conv(self, obj):
-    if "id" in obj:
-        return TagType.objects.get(id=obj["id"])
     del obj["__tagger_models_TagType__"]
+    try:
+        return TagType.objects.get(**obj)
+    except:
+        pass
     obj = TagType(**obj)
     obj.save()
     return obj
@@ -70,9 +72,11 @@ def conv(self, obj):
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Tag__')
 def conv(self, obj):
-    if "id" in obj:
-        return Tag.objects.get(id=obj["id"])
     del obj["__tagger_models_Tag__"]
+    try:
+        return Tag.objects.get(**obj)
+    except:
+        pass
     if "label" in obj: del obj["label"]
     if "value" in obj: del obj["value"]
     obj = Tag(**obj)
@@ -103,9 +107,11 @@ def conv(self, obj):
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Tagging__')
 def conv(self, obj):
-    if "id" in obj:
-        return Tagging.objects.get(id=obj["id"])
     del obj["__tagger_models_Tagging__"]
+    try:
+        return Tagging.objects.get(**obj)
+    except:
+        pass
     obj = Tagging(**obj)
     obj.save()
     return obj
@@ -127,10 +133,11 @@ def conv(self, obj):
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Document__')
 def conv(self, obj):
-    if "id" in obj:
-        return Document.objects.get(id=obj["id"])
-
     del obj["__tagger_models_Document__"]
+    try:
+        return Document.objects.get(**obj)
+    except:
+        pass
     obj = Document(**obj)
     obj.save()
     return obj
@@ -144,7 +151,7 @@ class Range(Object):
     excerpt = django.db.models.CharField(max_length=4048, blank=False)
 
     def __unicode__(self):
-        return "%s: %s" % (self.document.url, self.selector)
+        return "%s: %s" % (self.document.url, self.excerpt)
 
     class Meta:
         unique_together = (("document", "order"),)
@@ -161,9 +168,11 @@ def conv(self, obj):
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Range__')
 def conv(self, obj):
-    if "id" in obj:
-        return Range.objects.get(id=obj["id"])
-
+    del obj["__tagger_models_Range__"]
+    try:
+        return Range.objects.get(**obj)
+    except:
+        pass
     selectors = obj['document'].ranges.order_by("-order")
     if selectors:
         old_order = selectors[0].order
@@ -171,8 +180,7 @@ def conv(self, obj):
         assert old_order + 1 == obj["order"]
     else:
         assert obj["order"] == 0
-
-    del obj["__tagger_models_Range__"]
+    obj["selector"] = fcdjangoutils.jsonview.to_json(obj["selector"])
     obj = Range(**obj)
     obj.save()
     return obj
@@ -193,9 +201,11 @@ def conv(self, obj):
 
 @fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_TimeStamp__')
 def conv(self, obj):
-    if "id" in obj:
-        return TimeStamp.objects.get(id=obj["id"])
     del obj["__tagger_models_TimeStamp__"]
+    try:
+        return TimeStamp.objects.get(**obj)
+    except:
+        pass
     obj = TimeStamp(**obj)
     obj.save()
     return obj

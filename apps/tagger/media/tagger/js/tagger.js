@@ -207,10 +207,9 @@ SelectableDocument.prototype.mouseUp = function(event){
       excerpt: sel.map(function () { return $(this).html(); }).get().join(" ").substr(0, 4048),
     },
     success: function (data) {
-      var selection = {selector:selector, tags:[], id:data, order:tagger.selections.length};
-      tagger.selections.push(selection);
-      doc.wrapSelection(selection, sel);
-      doc.dialog.open(selection);
+      tagger.selections.push(data);
+      doc.wrapSelection(data, sel);
+      doc.dialog.open(data);
     },
     dataType: "json"
   });

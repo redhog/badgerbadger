@@ -2,6 +2,7 @@ import django.db.models
 import idmapper.models
 import django.contrib.auth.models
 from django.db.models import Q, F
+import django.db.models.query
 import fcdjangoutils.modelhelpers
 import fcdjangoutils.jsonview
 
@@ -72,12 +73,25 @@ class TimeStamp(Object):
 # def conv(self, obj):
 #     return DocumentSubscription.objects.get(document__document_id = obj['document_id']).export()
 
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(django.db.models.query.QuerySet)
+def modelconv(self, obj):
+    return list(obj)
+
 @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tagging)
 def conv(self, obj):
     return {'__tagger_models_Tagging__': True,
             'tag': obj.tag.name,
             'type': obj.tag.type and obj.tag.type.name,
             'dst': obj.dst and obj.dst.id}
+
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Tag)
+def conv(self, obj):
+    return {'__tagger_models_Tag__': True,
+            "id": obj.id,
+            "label": obj.name,
+            "value": obj.name,
+            "tag": obj.name,
+            "type": obj.type and obj.type.name}
 
 @fcdjangoutils.jsonview.JsonEncodeRegistry.register(Range)
 def conv(self, obj):
@@ -86,3 +100,5 @@ def conv(self, obj):
             "id": obj.id,
             "order": obj.order,
             "tags": obj.tags.all()}
+
+            

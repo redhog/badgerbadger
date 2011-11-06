@@ -208,12 +208,13 @@
   height: 20px;
 }
 
-.tweet {
+.tagger .tag_dialog .tweet {
   float: right;
   width: 110px;
+  height: 20px;
 }
 
-.values .value {
+.tagger .tag_dialog .values .value {
   display: none;
 }
 

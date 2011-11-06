@@ -28,6 +28,23 @@ class Object(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixi
         raise fcdjangoutils.modelhelpers.MustBeOverriddenError
 
 
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(Object)
+def conv(self, obj):
+    return {'__tagger_models_Object__': True,
+            "id": obj.id}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_Object__')
+def conv(self, obj):
+    del obj["__tagger_models_Object__"]
+    try:
+        return Object.objects.get(**obj)
+    except:
+        pass
+    obj = Object(**obj)
+    obj.save()
+    return obj
+
+
 
 class TagType(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
     name = django.db.models.CharField(max_length=255, unique=True, blank=False)
@@ -101,7 +118,7 @@ class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMix
 def conv(self, obj):
     return {'__tagger_models_Tagging__': True,
             "id": obj.id,
-            'src': {"id":obj.src.id},
+            'src': {'__tagger_models_Object__': True, "id":obj.src.id},
             'tag': obj.tag,
             'dst': obj.dst}
 

@@ -4,8 +4,7 @@ urlpatterns = patterns('',
     (r'^404', "tagger.views.serve404"),
 
     (r'^badgerbadger/tagger/create', "tagger.views.create_object"),
-
-    (r'^badgerbadger/tagger/tag/remove$', "tagger.views.remove_tag"),
+    (r'^badgerbadger/tagger/delete', "tagger.views.delete_object"),
 
     (r'^badgerbadger/tagger/tags/json$', "tagger.views.tags_json"),
 

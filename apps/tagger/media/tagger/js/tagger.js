@@ -112,11 +112,8 @@ TagDialog.prototype.deleteTagging = function(tagging) {
   var widget = dialog.widget;
 
   $.jsonviewajax({
-    url: "/badgerbadger/tagger/tag/remove",
-    data: {
-      id: widget.selection.id,
-      tag: tagging.tag.name
-    },
+    url: "/badgerbadger/tagger/delete",
+    data: {obj: JSON.stringify(tagging)},
     success: function (data) {
       widget.selection.tags = $.grep(widget.selection.tags, function(value) {
 	return value.id != tagging.id;

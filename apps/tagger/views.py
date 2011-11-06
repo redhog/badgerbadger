@@ -59,6 +59,10 @@ def create_object(request):
     obj.save()
     return obj
 
+@fcdjangoutils.jsonview.json_view
+def delete_object(request):
+    obj = fcdjangoutils.jsonview.from_json(request.GET['obj'])
+    obj.delete()
 
 def data(request):
     url = urllib.unquote(request.GET['url'])

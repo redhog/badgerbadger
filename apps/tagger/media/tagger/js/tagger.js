@@ -53,6 +53,60 @@ TagDialog = function (widget) {
     onClose: function(dateText, inst) { dialog.createTagging(); }
   });
 
+
+    dialog.map = new OpenLayers.Map({
+        div: "map_widget",
+        allOverlays: true
+    });
+
+    var osm = new OpenLayers.Layer.OSM();
+    var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
+    dialog.map.addLayers([osm, gmap]);
+    dialog.map.addControl(new OpenLayers.Control.LayerSwitcher());
+    dialog.map.zoomToMaxExtent();
+
+
+/*
+  dialog.map = new OpenLayers.Map('map_widget');
+  dialog.layer = new OpenLayers.Layer.OSM("Simple OSM Map");
+  dialog.map.addLayer(dialog.layer);
+  dialog.map.setCenter(
+    new OpenLayers.LonLat(-71.147, 42.472).transform(
+      new OpenLayers.Projection("EPSG:4326"),
+      dialog.map.getProjectionObject()
+    ), 12
+  );
+*/
+  /*
+    var styles = new OpenLayers.StyleMap({
+      "default": {
+	strokeWidth: 2
+      },
+      "select": {
+	strokeColor: "#0099cc",
+	strokeWidth: 4
+      }
+     });
+    var vectors = new OpenLayers.Layer.Vector("Lines", {
+	strategies: [new OpenLayers.Strategy.Fixed()],
+	protocol: new OpenLayers.Protocol.HTTP({
+	    url: "{% url geotracker.views.export_journey journey_id=journey.id format="geojson" %}",
+	    format: new OpenLayers.Format.GeoJSON()
+	}),
+	styleMap: styles
+    });
+
+    function selected (evt) {
+	console.log([evt, this.name]);
+    }
+    vectors.events.register("featureselected", vectors, selected);
+
+    var control = new OpenLayers.Control.SelectFeature(vectors);
+    dialog.map.addControl(control);
+    control.activate();
+    dialog.map.addLayer(vectors);
+  */
+
   $(widget).find('.exit').bind("click", function () { $('.tag_dialog').hide(); });
 
   $(widget).find(".types .type").each(function () {

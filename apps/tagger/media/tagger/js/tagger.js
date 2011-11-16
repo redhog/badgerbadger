@@ -34,22 +34,8 @@ TagDialog = function (widget) {
     select: function (event, ui) { return dialog.newTagSelect(event, ui); }
   });
   $(widget).find(".new_tag").keypress(function (event) { return dialog.newTagKeypress(event); });
-  $(widget).find(".TimeStamp .date").datetimepicker({
-    // showButtonPanel: false,
-    changeMonth: true,
-    changeYear: true,
-    dateFormat: "yy-mm-dd",
-    timeFormat: 'hh:mm:ss',
-    onSelect: function(dateText, inst) { console.log(["select", dateText, inst]); },
-    onClose: function(dateText, inst) { console.log(["close", dateText, inst]); }
-  });
 
   $(widget).find('.exit').bind("click", function () { $('.tag_dialog').hide(); });
-
-  $(widget).find(".types .type").each(function () {
-    var type = $(this).attr("class").split(" ")[1];
-    $(this).bind("click", function () { dialog.toggleType(type); });
-  });
 };
 TagDialog.prototype = new Object();
 TagDialog.prototype.newTagKeypress = function (event) {
@@ -58,22 +44,6 @@ TagDialog.prototype.newTagKeypress = function (event) {
   }
 };
 TagDialog.prototype.newTagSelect = function (event, ui) {
-};
-TagDialog.prototype.selectType = function (type) {
-  var dialog = this;
-  if (dialog.type)
-    $(dialog.widget).find(".values .value." + dialog.type).hide();
-  dialog.type = type;
-  $(dialog.widget).find(".values .value." + dialog.type).show();
-};
-TagDialog.prototype.toggleType = function (type) {
-  var dialog = this;
-
-  if (dialog.type == type) {
-    dialog.selectType();
-  } else {
-    dialog.selectType(type);
-  }
 };
 TagDialog.prototype.getLink = function() {
   // document.location.toString().split("#")[0] + "#selection_" + this.widget.selection.order;
@@ -159,7 +129,6 @@ TagDialog.prototype.open = function(selection) {
   $.each(selection.tags, function (index, tag) { dialog.addTagging(tag); });
   $(widget).find(".new_tag" ).attr("value", "");
   $(widget).find(".new_tag" ).focus();
-  dialog.selectType();
   dialog.updateTweetButton();
 };
 

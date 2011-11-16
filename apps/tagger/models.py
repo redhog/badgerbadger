@@ -194,9 +194,11 @@ def conv(self, obj):
     if selectors:
         old_order = selectors[0].order
         print old_order, obj["order"]
-        assert old_order + 1 == obj["order"]
+        if obj["order"] != old_order + 1:
+            raise Exception("Order %s != %s + 1" % (obj['order'], old_order))        
     else:
-        assert obj["order"] == 0
+        if obj["order"] != 0:
+            raise Exception("Order %s != 0" % (obj['order'], ))        
     obj["selector"] = fcdjangoutils.jsonview.to_json(obj["selector"])
     obj = Range(**obj)
     obj.save()

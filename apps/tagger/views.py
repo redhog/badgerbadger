@@ -129,6 +129,9 @@ def search(request):
 def index(request):
     return django.shortcuts.render_to_response('tagger/index.html', {}, context_instance=django.template.RequestContext(request))
 
+def test(request):
+    return django.shortcuts.render_to_response('tagger/test.html', {}, context_instance=django.template.RequestContext(request))
+
 
 def go(request, id):
     for obj in tagger.models.Object.objects.filter(id=int(id)):

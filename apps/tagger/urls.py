@@ -13,6 +13,7 @@ urlpatterns = patterns('',
 
     (r'^badgerbadger/tagger/search/?$', "tagger.views.search"),
     (r'^/?$', "tagger.views.index"),
+    (r'^test/?$', "tagger.views.test"),
 
     (r'^g/(?P<id>.*)/?$', "tagger.views.go"),
     (r'^', "tagger.views.other"),

@@ -1,3 +1,4 @@
+import django.contrib.gis.db.models
 import django.db.models
 import idmapper.models
 import django.contrib.auth.models
@@ -13,7 +14,8 @@ def modelconv(self, obj):
 
 
 
-class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+class MimeTypeCache(django.contrib.gis.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    objects = django.contrib.gis.db.models.GeoManager()
     url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
     mime_type = django.db.models.CharField(max_length=1024, blank=True)
 
@@ -22,7 +24,9 @@ class MimeTypeCache(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasMo
 
 
 
-class Object(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+class Object(django.contrib.gis.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    objects = django.contrib.gis.db.models.GeoManager()
+
     @fcdjangoutils.modelhelpers.subclassproxy
     def __unicode__(self):
         return "Instance of Object. Bad objectification."
@@ -47,7 +51,8 @@ def conv(self, obj):
 
 
 
-class TagType(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+class TagType(django.contrib.gis.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    objects = django.contrib.gis.db.models.GeoManager()
     name = django.db.models.CharField(max_length=255, unique=True, blank=False)
 
     def __unicode__(self):
@@ -72,7 +77,8 @@ def conv(self, obj):
 
 
 
-class Tag(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+class Tag(django.contrib.gis.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    objects = django.contrib.gis.db.models.GeoManager()
     name = django.db.models.CharField(max_length=1024, unique=True, blank=True)
     type = django.db.models.ForeignKey(TagType, related_name="tags", null=True, blank=True)
 
@@ -103,7 +109,8 @@ def conv(self, obj):
 
 
 
-class Tagging(django.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+class Tagging(django.contrib.gis.db.models.Model, fcdjangoutils.modelhelpers.SubclasModelMixin):
+    objects = django.contrib.gis.db.models.GeoManager()
     src = django.db.models.ForeignKey(Object, related_name="tags", null=False, blank=True)
     tag = django.db.models.ForeignKey(Tag, related_name="documents", null=False, blank=True)
     dst = django.db.models.ForeignKey(Object, related_name="links", null=True, blank=True)
@@ -137,6 +144,7 @@ def conv(self, obj):
 
 
 class Document(Object):
+    objects = django.contrib.gis.db.models.GeoManager()
     url = django.db.models.CharField(max_length=1024, unique=True, blank=False)
 
     def __unicode__(self):
@@ -163,6 +171,7 @@ def conv(self, obj):
 
 
 class Range(Object):
+    objects = django.contrib.gis.db.models.GeoManager()
     document = django.db.models.ForeignKey(Document, related_name="ranges", null=False)
     order = django.db.models.IntegerField(blank=False)
     selector = django.db.models.CharField(max_length=4048, blank=False)
@@ -206,6 +215,7 @@ def conv(self, obj):
 
 
 class TimeStamp(Object):
+    objects = django.contrib.gis.db.models.GeoManager()
     time = django.db.models.DateTimeField()
 
     def __unicode__(self):
@@ -225,5 +235,31 @@ def conv(self, obj):
     except:
         pass
     obj = TimeStamp(**obj)
+    obj.save()
+    return obj
+
+
+
+class MapPoint(Object):
+    objects = django.contrib.gis.db.models.GeoManager()
+    coord = django.contrib.gis.db.models.PointField()
+
+    def __unicode__(self):
+        return unicode(self.coord)
+
+@fcdjangoutils.jsonview.JsonEncodeRegistry.register(MapPoint)
+def conv(self, obj):
+    return {'__tagger_models_MapPoint__': True,
+            "id": obj.id,
+            "coord": str(obj.coord)}
+
+@fcdjangoutils.jsonview.JsonDecodeRegistry.register('__tagger_models_MapPoint__')
+def conv(self, obj):
+    del obj["__tagger_models_MapPoint__"]
+    try:
+        return MapPoint.objects.get(**obj)
+    except:
+        pass
+    obj = MapPoint(**obj)
     obj.save()
     return obj

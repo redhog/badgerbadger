@@ -54,58 +54,27 @@ TagDialog = function (widget) {
   });
 
 
-    dialog.map = new OpenLayers.Map({
-        div: "map_widget",
-        allOverlays: true
-    });
+  dialog.map = new OpenLayers.Map({
+      div: "map_widget",
+      allOverlays: true
+  });
 
-    var osm = new OpenLayers.Layer.OSM();
-    var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
-    dialog.map.addLayers([osm, gmap]);
-    dialog.map.addControl(new OpenLayers.Control.LayerSwitcher());
-    dialog.map.zoomToMaxExtent();
+  var osm = new OpenLayers.Layer.OSM();
+  var gmap = new OpenLayers.Layer.Google("Google Streets", {visibility: false});
+  var wms = new OpenLayers.Layer.WMS("OpenLayers WMS", "http://labs.metacarta.com/wms/vmap0", {layers: 'basic'});
+  dialog.map.addLayers([wms, osm, gmap]);
+  dialog.map.addControl(new OpenLayers.Control.LayerSwitcher());
+  dialog.map.zoomToMaxExtent();
 
+  dialog.map.events.register('click', dialog.map, function(e) {
+    var lonlat = dialog.map.getLonLatFromViewPortPx(e.xy);
+    // If you are using OpenStreetMap (etc) tiles and want to convert back 
+    // to gps coords add the following line :-
+    lonlat.transform(dialog.map.projection, dialog.map.displayProjection);
 
-/*
-  dialog.map = new OpenLayers.Map('map_widget');
-  dialog.layer = new OpenLayers.Layer.OSM("Simple OSM Map");
-  dialog.map.addLayer(dialog.layer);
-  dialog.map.setCenter(
-    new OpenLayers.LonLat(-71.147, 42.472).transform(
-      new OpenLayers.Projection("EPSG:4326"),
-      dialog.map.getProjectionObject()
-    ), 12
-  );
-*/
-  /*
-    var styles = new OpenLayers.StyleMap({
-      "default": {
-	strokeWidth: 2
-      },
-      "select": {
-	strokeColor: "#0099cc",
-	strokeWidth: 4
-      }
-     });
-    var vectors = new OpenLayers.Layer.Vector("Lines", {
-	strategies: [new OpenLayers.Strategy.Fixed()],
-	protocol: new OpenLayers.Protocol.HTTP({
-	    url: "{% url geotracker.views.export_journey journey_id=journey.id format="geojson" %}",
-	    format: new OpenLayers.Format.GeoJSON()
-	}),
-	styleMap: styles
-    });
-
-    function selected (evt) {
-	console.log([evt, this.name]);
-    }
-    vectors.events.register("featureselected", vectors, selected);
-
-    var control = new OpenLayers.Control.SelectFeature(vectors);
-    dialog.map.addControl(control);
-    control.activate();
-    dialog.map.addLayer(vectors);
-  */
+     console.log([lonlat.lon, lonlat.lat]);
+     $(widget).find(".tagger_models_MapPoint .coord")[0].value = "POINT (" + lonlat.lon + " " + lonlat.lat + ")";
+  });
 
   $(widget).find('.exit').bind("click", function () { $('.tag_dialog').hide(); });
 
@@ -176,6 +145,13 @@ TagDialog.prototype.addTagging = function(tagging) {
 TagDialog.prototype.renderDst_tagger_models_TimeStamp = function (dst) {
   return dst.time;
 };
+TagDialog.prototype.renderDst_tagger_models_MapPoint = function (dst) {
+  var res = dst.coord.match(/POINT \((.*) (.*)\)/);
+  var lon = res[1];
+  var lat = res[2];
+  return "" + lon + "N " + lat + "E";
+
+};
 TagDialog.prototype.deleteTagging = function(tagging) {
   var dialog = this;
   var widget = dialog.widget;
@@ -238,7 +214,20 @@ TagDialog.prototype.createDst_tagger_models_TimeStamp = function (callback) {
   });
 };
 TagDialog.prototype.createDst_tagger_models_MapPoint = function (callback) {
-  return callback(null);
+  var dialog = this;
+  var widget = dialog.widget;
+  var timestamp = {
+    '__tagger_models_MapPoint__': true,
+    'coord': $(widget).find(".tagger_models_MapPoint .coord")[0].value,
+  };
+  $.jsonviewajax({
+    url: "/badgerbadger/tagger/create",
+    data: {obj: JSON.stringify(timestamp)},
+    success: function (mappoint) {
+      callback(mappoint);
+    },
+    dataType: "json"
+  });
 };
 TagDialog.prototype.open = function(selection) {
   var dialog = this;
